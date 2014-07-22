@@ -23,7 +23,7 @@
 
                 $('button.send').click(function() {
                     sock.send($('.chat_text').val());
-                    $('.chat_text').html('');
+                    $('.chat_text').val('');
                 });            
             })
         </script>
