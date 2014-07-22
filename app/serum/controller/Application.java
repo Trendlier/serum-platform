@@ -1,11 +1,10 @@
-package controllers;
+package serum.controller;
 
 import play.*;
 import play.mvc.*;
-
-import views.html.*;
-
 import play.libs.F.*;
+
+import serum.view.html.*;
 
 public class Application extends Controller {
     public static Result index()
@@ -16,7 +15,8 @@ public class Application extends Controller {
     public static WebSocket<String> socket()  {
         return new WebSocket<String>() {
             // Called when the Websocket Handshake is done.
-            public void onReady(WebSocket.In<String> in, WebSocket.Out<String> out) {
+            public void onReady(WebSocket.In<String> in, WebSocket.Out<String> out) 
+            {
                 // For each event received on the socket,
                 in.onMessage(new Callback<String>() {
                      public void invoke(String event) {

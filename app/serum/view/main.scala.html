@@ -15,7 +15,7 @@
         <script type="text/javascript" charset="utf-8">
             $(function() {
                 var WS = window['MozWebSocket'] ? MozWebSocket : WebSocket
-                var sock = new WS("@routes.Application.socket().webSocketURL(request)")
+                var sock = new WS("@serum.controller.routes.Application.socket().webSocketURL(request)")
 
                 sock.onmessage = function(event) {
                     $('.chat').append(event.data);
