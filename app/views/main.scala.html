@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Chat app</title>
+        <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+    </head>
+    <body>
+        <h1>Chat app</h1>
+
+        <div class="chat"></div>
+        <input class="chat_text" type="text" size="25" value=""/>
+        <button class="send">Send</button>
+
+        <script type="text/javascript" charset="utf-8">
+            $(function() {
+                var WS = window['MozWebSocket'] ? MozWebSocket : WebSocket
+                var sock = new WS("@routes.Application.socket().webSocketURL(request)")
+
+                sock.onmessage = function(event) {
+                    $('.chat').append(event.data);
+                }
+
+                $('button.send').click(function() {
+                    sock.send($('.chat_text').val());
+                    $('.chat_text').html('');
+                });            
+            })
+        </script>
+    </body>
+</html>
