@@ -2,6 +2,9 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
+# Rest services
+POST    /loginUsingFacebook         serum.controller.LoginController.loginUsingFacebook
+
 # Chat client page
 GET     /client                     serum.controller.ChatClientController.index
 
