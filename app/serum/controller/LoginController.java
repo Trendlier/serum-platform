@@ -8,6 +8,7 @@ import static play.libs.Json.*;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import com.restfb.*;
+import com.restfb.types.*;
 
 import serum.rest.LoginUsingFacebookRequest;
 
@@ -25,7 +26,10 @@ public class LoginController extends Controller {
         LoginUsingFacebookRequest request = fromJson(json, LoginUsingFacebookRequest.class);
 
         // Get info from Facebook
-        //FacebookClient fb = new FacebookClient(request.accessToken);
+        FacebookClient fb = new DefaultFacebookClient(request.accessToken);
+        User user = fb.fetchObject(request.facebookId, User.class);
+        System.out.println(user.getFirstName());
+        System.out.println(user.getLastName());
 
         return ok(request.facebookId + " " + request.accessToken);
     }
