@@ -9,9 +9,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import serum.view.html.*;
 
-public class Application extends Controller {
+public class ChatClientController extends Controller {
     public static Result index()
     {
-        return ok(main.render());
+        return ok(chatClient.render());
     }
 }

@@ -2,8 +2,8 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# Home page
-GET     /                           serum.controller.Application.index
+# Chat client page
+GET     /client                     serum.controller.ChatClientController.index
 
 # Web socket handler(s)
 GET     /threadSocket               serum.controller.ThreadSocketController.socket
