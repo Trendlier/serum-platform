@@ -3,8 +3,6 @@ package serum.model;
 import java.util.*;
 import javax.persistence.*;
 
-import serum.model.User;
-
 @Entity
 @Table(name="facebook_user")
 public class FacebookUser
