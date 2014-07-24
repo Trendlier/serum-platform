@@ -10,8 +10,8 @@ import serum.model.User;
 public class FacebookUser
 {
     @Id
-    @SequenceGenerator(name="facebook_user_seq", sequenceName="facebook_user_id_seq")
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="facebook_user_seq")
+    @SequenceGenerator(name="facebookUserSeq", sequenceName="facebook_user_id_seq")
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="facebookUserSeq")
     @Column(name="id")
     public Long id;
 

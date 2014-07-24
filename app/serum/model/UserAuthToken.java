@@ -14,8 +14,8 @@ public class UserAuthToken
     public static final int DEFAULT_EXPIRES_DAYS = 30;
 
     @Id
-    @SequenceGenerator(name="user_auth_token_seq", sequenceName="user_auth_token_id_seq")
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="user_auth_token_seq")
+    @SequenceGenerator(name="userAuthTokenSeq", sequenceName="user_auth_token_id_seq")
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="userAuthTokenSeq")
     @Column(name="id")
     public Long id;
 

@@ -10,8 +10,8 @@ public class User
     public static final int DEFAULT_THREAD_CAPACITY = 10;
 
     @Id
-    @SequenceGenerator(name="user_seq", sequenceName="user_id_seq")
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="user_seq")
+    @SequenceGenerator(name="userSeq", sequenceName="user_id_seq")
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="userSeq")
     @Column(name="id")
     public Long id;
 
