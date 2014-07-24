@@ -1,6 +1,6 @@
 package serum.rest;
 
-public class LoginUsingFacebookRequest
+public class LoginRequest
 {
     public String userAuthToken;
     public String facebookId;

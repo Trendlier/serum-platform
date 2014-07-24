@@ -3,7 +3,7 @@
 # ~~~~
 
 # Rest services
-POST    /loginUsingFacebook         serum.controller.LoginController.loginUsingFacebook
+POST    /login                      serum.controller.LoginController.login
 
 # Chat client page
 GET     /client                     serum.controller.ChatClientController.index
