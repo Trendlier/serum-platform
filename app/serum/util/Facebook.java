@@ -12,6 +12,8 @@ import com.restfb.exception.*;
  */
 public class Facebook
 {
+    protected FacebookClient facebookClient;
+
     public static class User extends com.restfb.types.User
     {
         protected List<User> friends;
@@ -46,7 +48,17 @@ public class Facebook
         }
     }
 
-    public static User checkUserInfoFromFacebook(
+    public Facebook(FacebookClient facebookClient)
+    {
+        this.facebookClient = facebookClient;
+    }
+
+    public static Facebook getInstance(String facebookAccessToken)
+    {
+        return new Facebook(new DefaultFacebookClient(facebookAccessToken));
+    }
+
+    public User checkUserInfoFromFacebook(
         String facebookId,
         String facebookAccessToken
     )
@@ -55,10 +67,9 @@ public class Facebook
         User userFb = null;
 
         // Get info about the user from Facebook
-        FacebookClient fb = new DefaultFacebookClient(facebookAccessToken);
         try
         {
-            userFb = fb.fetchObject("me", User.class);
+            userFb = facebookClient.fetchObject("me", User.class);
             if (!facebookId.equals(userFb.getId()))
             {
                 throw new AuthenticationException("Facebook user ID and access token do not match");
@@ -70,23 +81,25 @@ public class Facebook
             throw new AuthenticationException(e.getMessage());
         }
 
-        // Take this opportunity to fetch list of friends
-        userFb.setFriends(getFriends(facebookAccessToken));
-
         // Set access token
         userFb.setAccessToken(facebookAccessToken);
 
         return userFb;
     }
 
-    public static List<User> getFriends(String facebookAccessToken)
+    public void pullFriends(User userFb)
+    throws AuthenticationException
+    {
+        userFb.setFriends(getFriends());
+    }
+
+    public List<User> getFriends()
     throws AuthenticationException
     {
         List<User> friends = null;
-        FacebookClient fb = new DefaultFacebookClient(facebookAccessToken);
         try
         {
-            Connection<User> connectionFriends = fb.fetchConnection("me/friends", User.class);
+            Connection<User> connectionFriends = facebookClient.fetchConnection("me/friends", User.class);
             friends = connectionFriends.getData();
         }
         catch (FacebookOAuthException e)

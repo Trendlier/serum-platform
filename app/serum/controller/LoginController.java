@@ -43,7 +43,9 @@ public class LoginController extends Controller {
             {
                 try
                 {
-                    userFb = Facebook.checkUserInfoFromFacebook(request.facebookId, request.facebookAccessToken);
+                    Facebook facebook = Facebook.getInstance(request.facebookAccessToken);
+                    userFb = facebook.checkUserInfoFromFacebook(request.facebookId, request.facebookAccessToken);
+                    facebook.pullFriends(userFb);
                 }
                 catch (Facebook.AuthenticationException e)
                 {
