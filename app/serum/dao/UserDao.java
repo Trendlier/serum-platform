@@ -8,73 +8,46 @@ import play.db.ebean.*;
 
 import serum.model.*;
 
+import serum.util.Facebook;
+
 public class UserDao
 {
-    @Transactional
-    public static User getUserFromFacebookInfo(com.restfb.types.User userFb)
+    public static User getUserFromFacebookInfo(Facebook.User userFb)
     throws Exception
     {
-        User user = Ebean.find(User.class)
-            .fetch("facebookUser")
-            .fetch("userAuthToken")
-            .where().and(
-                Expr.eq("facebookUser.idFacebook", userFb.getId()),
-                Expr.or(
-                    Expr.isNull("userAuthToken"),
-                    Expr.eq("userAuthToken.isDeleted", false)))
-            .findUnique();
-
-        if (user == null)
+        FacebookUser facebookUser = null;
+        Ebean.beginTransaction();
+        try
         {
-            user = createUser();
-        }
+            facebookUser = FacebookUserDao.createUpdateFacebookUser(userFb);
+            if (facebookUser.user == null)
+            {
+                facebookUser.user = new User();
+                Ebean.save(facebookUser.user);
+                Ebean.save(facebookUser);
+            }
+            createUserAuthToken(facebookUser.user);
 
-        if (user.facebookUser == null)
-        {
-            user.facebookUser = createFacebookUser(user, userFb);
+            Ebean.commitTransaction();
+            Ebean.endTransaction();
         }
-        else
+        catch (Exception e)
         {
-            updateFacebookUser(user.facebookUser, userFb);
+            Ebean.endTransaction();
+            throw(e);
         }
-
-        if (user.userAuthToken == null)
-        {
-            user.userAuthToken = createUserAuthToken(user);
-        }
-
-        return user;
+        return facebookUser.user;
     }
 
-    public static User createUser()
-    {
-        User user = new User();
-        Ebean.save(user);
-        return user;
-    }
-
-    public static FacebookUser createFacebookUser(User user, com.restfb.types.User userFb)
-    {
-        FacebookUser facebookUser = new FacebookUser(user);
-        updateFacebookUser(facebookUser, userFb);
-        Ebean.save(facebookUser);
-        return facebookUser;
-    }
-
-    public static void updateFacebookUser(FacebookUser facebookUser, com.restfb.types.User userFb)
-    {
-        facebookUser.idFacebook = userFb.getId();
-        facebookUser.firstName = userFb.getFirstName();
-        facebookUser.middleName = userFb.getMiddleName();
-        facebookUser.lastName = userFb.getLastName();
-    }
-
-    public static UserAuthToken createUserAuthToken(User user)
+    public static void createUserAuthToken(User user)
     throws Exception
     {
-        UserAuthToken userAuthToken = new UserAuthToken(user);
-        Ebean.save(userAuthToken);
-        return userAuthToken;
+        if (user.userAuthToken == null || user.userAuthToken.isDeleted)
+        {
+            UserAuthToken userAuthToken = new UserAuthToken(user);
+            Ebean.save(userAuthToken);
+            user.userAuthToken = userAuthToken;
+        }
     }
 
     public static UserAuthToken getUserAuthTokenByToken(String token)

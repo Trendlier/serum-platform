@@ -23,14 +23,8 @@ public class FacebookUser
     @Column(name="access_token")
     public String accessToken;
 
-    @Column(name="first_name")
-    public String firstName;
-
-    @Column(name="middle_name")
-    public String middleName;
-
-    @Column(name="last_name")
-    public String lastName;
+    @Column(name="name")
+    public String name;
 
     @Column(name="created_utc")
     @Temporal(TemporalType.TIMESTAMP)
@@ -43,9 +37,8 @@ public class FacebookUser
     @Temporal(TemporalType.TIMESTAMP)
     public Calendar deletedUTC;
 
-    public FacebookUser(User user)
+    public FacebookUser()
     {
-        this.user = user;
         this.createdUTC = Calendar.getInstance(TimeZone.getTimeZone("Etc/UTC"));
     }
 }

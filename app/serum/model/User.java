@@ -29,7 +29,7 @@ public class User
     @Temporal(TemporalType.TIMESTAMP)
     public Calendar deletedUTC;
 
-    @OneToOne(mappedBy="user")
+    @Transient
     public FacebookUser facebookUser;
 
     @OneToOne(mappedBy="user")

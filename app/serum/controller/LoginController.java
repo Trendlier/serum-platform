@@ -67,7 +67,6 @@ public class LoginController extends Controller {
                 response = new LoginResponse(false, "Auth token does not exist. Log in again.");
                 return badRequest(toJson(response));
             }
-            user = userAuthToken.user;
         }
 
         response = new LoginResponse(true, null, userAuthToken.token);
