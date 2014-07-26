@@ -30,7 +30,6 @@ public class FacebookUserDao
         facebookUser.accessToken = userFb.getAccessToken();
         facebookUser.name = userFb.getName();
         Ebean.save(facebookUser);
-        createUpdateFacebookUserFriends(facebookUser, userFb);
         return facebookUser;
     }
 

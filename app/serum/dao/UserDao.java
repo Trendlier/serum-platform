@@ -20,6 +20,7 @@ public class UserDao
         try
         {
             facebookUser = FacebookUserDao.createUpdateFacebookUser(userFb);
+            FacebookUserDao.createUpdateFacebookUserFriends(facebookUser, userFb);
             if (facebookUser.user == null)
             {
                 facebookUser.user = new User();
