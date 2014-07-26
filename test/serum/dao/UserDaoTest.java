@@ -17,7 +17,7 @@ import serum.util.Facebook;
 
 public class UserDaoTest extends DaoTest
 {
-    protected Facebook.User getMockUserFb()
+    protected Facebook.User getFreshMockUserFb()
     {
         // Create mock Facebook user
         Facebook.User mockUserFb = mock(Facebook.User.class);
@@ -38,7 +38,7 @@ public class UserDaoTest extends DaoTest
     public void testGetUserFromFacebookInfo()
     throws Exception
     {
-        Facebook.User mockUserFb = getMockUserFb();
+        Facebook.User mockUserFb = getFreshMockUserFb();
         // Create in DB
         User user = UserDao.getUserFromFacebookInfo(mockUserFb);
         assertNotNull(user);

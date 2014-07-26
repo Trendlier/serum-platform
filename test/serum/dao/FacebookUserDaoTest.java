@@ -79,6 +79,29 @@ public class FacebookUserDaoTest extends DaoTest
     }
 
     @Test
+    public void testCreateUpdateFacebookUserNullAccessToken()
+    {
+        // Create their info record
+        FacebookUser facebookUser = FacebookUserDao.createUpdateFacebookUser(mockUserFb);
+        assertEquals(mockUserFb.getId(), facebookUser.idFacebook);
+        assertEquals(mockUserFb.getAccessToken(), facebookUser.accessToken);
+        assertEquals(mockUserFb.getName(), facebookUser.name);
+        // Set the access token to null.
+        Facebook.User mockUserFb2 = mock(Facebook.User.class);
+        String originalId = mockUserFb.getId();
+        String originalName = mockUserFb.getName();
+        when(mockUserFb2.getId()).thenReturn(originalId);
+        when(mockUserFb2.getAccessToken()).thenReturn(null);
+        when(mockUserFb2.getName()).thenReturn(originalName);
+        // Another call to this method should yield the original access token
+        FacebookUser facebookUser2 = FacebookUserDao.createUpdateFacebookUser(mockUserFb);
+        assertEquals(facebookUser.id, facebookUser2.id);
+        assertEquals(mockUserFb.getId(), facebookUser.idFacebook);
+        assertEquals(mockUserFb.getAccessToken(), facebookUser.accessToken);
+        assertEquals(mockUserFb.getName(), facebookUser.name);
+    }
+
+    @Test
     public void testCreateUpdateFacebookUserFriends()
     {
     }
