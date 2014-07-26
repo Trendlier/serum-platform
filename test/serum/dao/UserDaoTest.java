@@ -15,26 +15,8 @@ import serum.model.*;
 
 import serum.util.Facebook;
 
-public class UserDaoTest
+public class UserDaoTest extends DaoTest
 {
-    public static FakeApplication app;
-
-    @BeforeClass
-    public static void setUp()
-    {
-        final HashMap<String,String> settings = new HashMap<String, String>();
-        // TODO: Set "db.default.*" to a different test database, preferably in-memory.
-        settings.put("evolutionplugin", "disabled");
-        app = Helpers.fakeApplication(settings);
-        Helpers.start(app);
-    }
-
-    @AfterClass
-    public static void tearDown()
-    {
-        Helpers.stop(app);
-    }
-
     @Test
     public void testGetUserFromFacebookInfo()
     throws Exception
@@ -45,17 +27,13 @@ public class UserDaoTest
         when(mockUserFb.getAccessToken()).thenReturn("abcdef");
         when(mockUserFb.getName()).thenReturn("Abc Def");
         // First, make sure the Facebook user is deleted from our database
-        FacebookUser facebookUser =
-            Ebean.find(FacebookUser.class)
-            .where().and(
-                Expr.eq("idFacebook", mockUserFb.getId()),
-                Expr.eq("isDeleted", false))
-            .findUnique();
-        if (facebookUser != null)
-        {
-            facebookUser.isDeleted = true;
-            Ebean.save(facebookUser);
-        }
+        Ebean.createUpdate(
+            FacebookUser.class,
+            "update FacebookUser " +
+            "set isDeleted = true " +
+            "where idFacebook = :idFacebook ")
+            .set("idFacebook", mockUserFb.getId())
+            .execute();
         // Create in DB
         User user = UserDao.getUserFromFacebookInfo(mockUserFb);
         assertNotNull(user);
