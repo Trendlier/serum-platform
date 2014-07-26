@@ -2,8 +2,6 @@ package serum.util;
 
 import java.util.*;
 
-import play.*;
-
 import com.restfb.*;
 import com.restfb.exception.*;
 
@@ -77,7 +75,6 @@ public class Facebook
         }
         catch (FacebookOAuthException e)
         {
-            Logger.error("Error authenticating " + facebookId + " with Facebook", e);
             throw new AuthenticationException(e.getMessage());
         }
 
@@ -104,7 +101,6 @@ public class Facebook
         }
         catch (FacebookOAuthException e)
         {
-            Logger.error("Error authenticating with Facebook", e);
             throw new AuthenticationException(e.getMessage());
         }
         return friends;

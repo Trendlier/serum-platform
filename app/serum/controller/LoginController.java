@@ -34,41 +34,53 @@ public class LoginController extends Controller {
         UserAuthToken userAuthToken = null;
         User user = null;
 
-        JsonNode json = request().body().asJson();
-        LoginRequest request = fromJson(json, LoginRequest.class);
-
-        if (request.userAuthToken == null)
+        try
         {
-            if (request.facebookId != null && request.facebookAccessToken != null)
+            JsonNode json = request().body().asJson();
+            LoginRequest request = fromJson(json, LoginRequest.class);
+
+            if (request.userAuthToken == null)
             {
-                try
+                if (request.facebookId != null && request.facebookAccessToken != null)
                 {
-                    Facebook facebook = Facebook.getInstance(request.facebookAccessToken);
-                    userFb = facebook.checkUserInfoFromFacebook(request.facebookId, request.facebookAccessToken);
-                    facebook.pullFriends(userFb);
+                    try
+                    {
+                        Facebook facebook = Facebook.getInstance(request.facebookAccessToken);
+                        userFb = facebook.checkUserInfoFromFacebook(request.facebookId, request.facebookAccessToken);
+                        facebook.pullFriends(userFb);
+                    }
+                    catch (Facebook.AuthenticationException e)
+                    {
+                        Logger.error(
+                            "Error authenticating " + request.facebookId + " with " +
+                            request.facebookAccessToken + " with Facebook", e);
+                        response = new LoginResponse(false, e.getMessage());
+                        return badRequest(toJson(response));
+                    }
+                    user = UserDao.getUserFromFacebookInfo(userFb);
+                    userAuthToken = user.userAuthToken;
                 }
-                catch (Facebook.AuthenticationException e)
+                else
                 {
-                    response = new LoginResponse(false, e.getMessage());
+                    response = new LoginResponse(false, "No auth token provided: expected Facebook login.");
                     return badRequest(toJson(response));
                 }
-                user = UserDao.getUserFromFacebookInfo(userFb);
-                userAuthToken = user.userAuthToken;
             }
             else
             {
-                response = new LoginResponse(false, "No auth token provided: expected Facebook login.");
-                return badRequest(toJson(response));
+                userAuthToken = UserDao.getUserAuthTokenByToken(request.userAuthToken);
+                if (userAuthToken == null)
+                {
+                    response = new LoginResponse(false, "Auth token does not exist. Log in again.");
+                    return badRequest(toJson(response));
+                }
             }
         }
-        else
+        catch (Exception e)
         {
-            userAuthToken = UserDao.getUserAuthTokenByToken(request.userAuthToken);
-            if (userAuthToken == null)
-            {
-                response = new LoginResponse(false, "Auth token does not exist. Log in again.");
-                return badRequest(toJson(response));
-            }
+            Logger.error("Error logging user in", e);
+            response = new LoginResponse(false, "Unexpected error");
+            return internalServerError(toJson(response));
         }
 
         response = new LoginResponse(true, null, userAuthToken.token);

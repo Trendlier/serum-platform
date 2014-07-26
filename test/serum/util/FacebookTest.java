@@ -28,6 +28,34 @@ public class FacebookTest
         assertEquals(userFb, mockUserFb);
     }
 
+    @Test(expected=Facebook.AuthenticationException.class)
+    public void testCheckUserInfoFromFacebookIdIncorrect()
+    throws Exception
+    {
+        // Create mock Facebook user
+        Facebook.User mockUserFb = mock(Facebook.User.class);
+        when(mockUserFb.getId()).thenReturn("123456");
+        // Create mock of underlying client
+        FacebookClient mockFacebookClient = mock(DefaultFacebookClient.class);
+        when(mockFacebookClient.fetchObject("me", Facebook.User.class)).thenReturn(mockUserFb);
+
+        Facebook facebook = new Facebook(mockFacebookClient);
+        Facebook.User userFb = facebook.checkUserInfoFromFacebook("654321", "abcdef");
+    }
+
+    @Test(expected=Facebook.AuthenticationException.class)
+    public void testCheckUserInfoFromFacebookOAuthFailure()
+    throws Exception
+    {
+        // Create mock of underlying client
+        FacebookClient mockFacebookClient = mock(DefaultFacebookClient.class);
+        when(mockFacebookClient.fetchObject("me", Facebook.User.class))
+            .thenThrow(FacebookOAuthException.class);
+
+        Facebook facebook = new Facebook(mockFacebookClient);
+        Facebook.User userFb = facebook.checkUserInfoFromFacebook("654321", "abcdef");
+    }
+
     @Test
     public void testPullFriends()
     throws Exception
@@ -48,5 +76,20 @@ public class FacebookTest
         Facebook facebook = new Facebook(mockFacebookClient);
         facebook.pullFriends(mockUserFb);
         verify(mockUserFb).setFriends(mockFriends);
+    }
+
+    @Test(expected=Facebook.AuthenticationException.class)
+    public void testPullFriendsOAuthFailure()
+    throws Exception
+    {
+        // Create mock Facebook user
+        Facebook.User mockUserFb = mock(Facebook.User.class);
+        // Create mock of underlying client
+        FacebookClient mockFacebookClient = mock(DefaultFacebookClient.class);
+        when(mockFacebookClient.fetchConnection("me/friends", Facebook.User.class))
+            .thenThrow(FacebookOAuthException.class);
+
+        Facebook facebook = new Facebook(mockFacebookClient);
+        facebook.pullFriends(mockUserFb);
     }
 }
