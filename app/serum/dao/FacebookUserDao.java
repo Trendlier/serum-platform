@@ -27,7 +27,10 @@ public class FacebookUserDao
             facebookUser = new FacebookUser();
         }
         facebookUser.idFacebook = userFb.getId();
-        facebookUser.accessToken = userFb.getAccessToken();
+        if (userFb.getAccessToken() != null)
+        {
+            facebookUser.accessToken = userFb.getAccessToken();
+        }
         facebookUser.name = userFb.getName();
         Ebean.save(facebookUser);
         return facebookUser;
