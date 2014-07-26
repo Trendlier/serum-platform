@@ -17,10 +17,10 @@ import serum.util.Facebook;
 
 public class DaoTest
 {
-    public static FakeApplication app;
+    protected static FakeApplication app;
 
     @BeforeClass
-    public static void setUp()
+    public static void setUpClass()
     {
         final HashMap<String,String> settings = new HashMap<String, String>();
         // TODO: Set "db.default.*" to a different test database, preferably in-memory.
@@ -30,7 +30,7 @@ public class DaoTest
     }
 
     @AfterClass
-    public static void tearDown()
+    public static void tearDownClass()
     {
         Helpers.stop(app);
     }

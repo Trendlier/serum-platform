@@ -2,7 +2,23 @@ package serum.model;
 
 import java.util.*;
 import javax.persistence.*;
+import com.avaje.ebean.annotation.*;
 
+@NamedUpdates(value={
+    @NamedUpdate(
+        name="removeByIdFacebook",
+        update=
+            "update FacebookUser " +
+            "set isDeleted = true " +
+            "where idFacebook = :idFacebook "),
+    // This delete should only be used for testing purposes.
+    // Use removeByIdFacebook instead, so we can track history.
+    @NamedUpdate(
+        name="deleteByIdFacebook",
+        update=
+            "delete from FacebookUser " +
+            "where idFacebook = :idFacebook ")
+})
 @Entity
 @Table(name="facebook_user")
 public class FacebookUser
