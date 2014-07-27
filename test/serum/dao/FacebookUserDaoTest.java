@@ -119,5 +119,31 @@ public class FacebookUserDaoTest extends DaoTest
             .findList();
         assertEquals(1, friendFacebookUsers.size());
         assertEquals(mockUserFb.getFriends().get(0).getId(), friendFacebookUsers.get(0).idFacebook);
+        // Let's make some friends. :)
+        Facebook.User mockFriendUserFb = mock(Facebook.User.class);
+        when(mockFriendUserFb.getId()).thenReturn("123462");
+        when(mockFriendUserFb.getName()).thenReturn("Mno Pqr");
+        mockUserFb.getFriends().add(mockFriendUserFb);
+        // Now run the method again.
+        FacebookUserDao.createUpdateFacebookUserFriends(facebookUser, mockUserFb);
+        // Friend should have been created. Existing one should remain.
+        friendFacebookUsers =
+           Ebean.createNamedQuery(FacebookUser.class, "findFriendsByIdFacebook")
+            .setParameter("idFacebook", facebookUser.idFacebook)
+            .findList();
+        assertEquals(2, friendFacebookUsers.size());
+        assertEquals(mockUserFb.getFriends().get(0).getId(), friendFacebookUsers.get(0).idFacebook);
+        assertEquals(mockUserFb.getFriends().get(1).getId(), friendFacebookUsers.get(1).idFacebook);
+        // Let's lose some friends. :(
+        mockUserFb.getFriends().remove(mockFriendUserFb);
+        // Now run the method again.
+        FacebookUserDao.createUpdateFacebookUserFriends(facebookUser, mockUserFb);
+        // Friend should have been removed. Existing one should remain.
+        friendFacebookUsers =
+           Ebean.createNamedQuery(FacebookUser.class, "findFriendsByIdFacebook")
+            .setParameter("idFacebook", facebookUser.idFacebook)
+            .findList();
+        assertEquals(1, friendFacebookUsers.size());
+        assertEquals(mockUserFb.getFriends().get(0).getId(), friendFacebookUsers.get(0).idFacebook);
     }
 }
