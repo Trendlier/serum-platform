@@ -4,6 +4,19 @@ import java.util.*;
 import javax.persistence.*;
 import com.avaje.ebean.annotation.*;
 
+@NamedQueries(value={
+    @NamedQuery(
+        name="findFriendsByIdFacebook",
+        query="where id in ( " +
+                  "SELECT ffu.id " +
+                  "FROM facebook_user_friend fuf " +
+                  "INNER JOIN facebook_user fu ON fu.id = fuf.facebook_user_id " +
+                  "INNER JOIN facebook_user ffu ON ffu.id = fuf.facebook_user_id_of_friend " +
+                  "WHERE fu.id_facebook = :idFacebook " +
+                  "AND NOT fuf.is_deleted " +
+                  "AND NOT ffu.is_deleted " +
+                ") ")
+})
 @NamedUpdates(value={
     @NamedUpdate(
         name="removeByIdFacebook",

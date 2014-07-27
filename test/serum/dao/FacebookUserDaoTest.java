@@ -31,6 +31,7 @@ public class FacebookUserDaoTest extends DaoTest
         List<Facebook.User> mockFriends = new ArrayList<Facebook.User>();
         Facebook.User mockFriendUserFb = mock(Facebook.User.class);
         when(mockFriendUserFb.getId()).thenReturn("123459");
+        when(mockFriendUserFb.getName()).thenReturn("Ghi Jkl");
         mockFriends.add(mockFriendUserFb);
         when(mockUserFb.getFriends()).thenReturn(mockFriends);
         // Make sure the Facebook user and their friends are deleted from our database
@@ -104,5 +105,19 @@ public class FacebookUserDaoTest extends DaoTest
     @Test
     public void testCreateUpdateFacebookUserFriends()
     {
+        // Create their info record
+        FacebookUser facebookUser = FacebookUserDao.createUpdateFacebookUser(mockUserFb);
+        assertEquals(mockUserFb.getId(), facebookUser.idFacebook);
+        assertEquals(mockUserFb.getAccessToken(), facebookUser.accessToken);
+        assertEquals(mockUserFb.getName(), facebookUser.name);
+        // Now create their friends.
+        FacebookUserDao.createUpdateFacebookUserFriends(facebookUser, mockUserFb);
+        // Friend should have been created.
+        List<FacebookUser> friendFacebookUsers =
+           Ebean.createNamedQuery(FacebookUser.class, "findFriendsByIdFacebook")
+            .setParameter("idFacebook", facebookUser.idFacebook)
+            .findList();
+        assertEquals(1, friendFacebookUsers.size());
+        assertEquals(mockUserFb.getFriends().get(0).getId(), friendFacebookUsers.get(0).idFacebook);
     }
 }
