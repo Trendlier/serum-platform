@@ -41,6 +41,9 @@ public class FacebookUserDaoTest extends DaoTest
         Ebean.createNamedUpdate(FacebookUser.class, "deleteByIdFacebook")
             .set("idFacebook", mockUserFb.getId())
             .execute();
+        Ebean.createNamedUpdate(FacebookUser.class, "deleteByIdFacebook")
+            .set("idFacebook", mockFriendUserFb.getId())
+            .execute();
     }
 
     @Test
@@ -119,6 +122,7 @@ public class FacebookUserDaoTest extends DaoTest
             .findList();
         assertEquals(1, friendFacebookUsers.size());
         assertEquals(mockUserFb.getFriends().get(0).getId(), friendFacebookUsers.get(0).idFacebook);
+
         // Let's make some friends. :)
         Facebook.User mockFriendUserFb = mock(Facebook.User.class);
         when(mockFriendUserFb.getId()).thenReturn("123462");
@@ -127,13 +131,17 @@ public class FacebookUserDaoTest extends DaoTest
         // Now run the method again.
         FacebookUserDao.createUpdateFacebookUserFriends(facebookUser, mockUserFb);
         // Friend should have been created. Existing one should remain.
+        Set<String> expectedFriendIds = new HashSet<String>();
+        expectedFriendIds.add(mockUserFb.getFriends().get(0).getId());
+        expectedFriendIds.add(mockUserFb.getFriends().get(1).getId());
         friendFacebookUsers =
            Ebean.createNamedQuery(FacebookUser.class, "findFriendsByIdFacebook")
             .setParameter("idFacebook", facebookUser.idFacebook)
             .findList();
         assertEquals(2, friendFacebookUsers.size());
-        assertEquals(mockUserFb.getFriends().get(0).getId(), friendFacebookUsers.get(0).idFacebook);
-        assertEquals(mockUserFb.getFriends().get(1).getId(), friendFacebookUsers.get(1).idFacebook);
+        assertTrue(expectedFriendIds.contains(friendFacebookUsers.get(0).idFacebook));
+        assertTrue(expectedFriendIds.contains(friendFacebookUsers.get(1).idFacebook));
+
         // Let's lose some friends. :(
         mockUserFb.getFriends().remove(mockFriendUserFb);
         // Now run the method again.
