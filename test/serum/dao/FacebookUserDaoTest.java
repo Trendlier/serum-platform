@@ -27,6 +27,7 @@ public class FacebookUserDaoTest extends DaoTest
         when(mockUserFb.getId()).thenReturn("123456");
         when(mockUserFb.getAccessToken()).thenReturn("abcdef");
         when(mockUserFb.getName()).thenReturn("Abc Def");
+        when(mockUserFb.getPicture()).thenReturn(new Facebook.User.Picture("http://trendlier.com/xyz.jpeg"));
         // Create mock friends
         List<Facebook.User> mockFriends = new ArrayList<Facebook.User>();
         Facebook.User mockFriendUserFb = mock(Facebook.User.class);
@@ -54,12 +55,14 @@ public class FacebookUserDaoTest extends DaoTest
         assertEquals(mockUserFb.getId(), facebookUser.idFacebook);
         assertEquals(mockUserFb.getAccessToken(), facebookUser.accessToken);
         assertEquals(mockUserFb.getName(), facebookUser.name);
+        assertEquals(mockUserFb.getPicture().getData().getUrl(), facebookUser.pictureUrl);
         // Another call to this method should yield the exact same record
         FacebookUser facebookUser2 = FacebookUserDao.createUpdateFacebookUser(mockUserFb);
         assertEquals(facebookUser.id, facebookUser2.id);
-        assertEquals(mockUserFb.getId(), facebookUser.idFacebook);
-        assertEquals(mockUserFb.getAccessToken(), facebookUser.accessToken);
-        assertEquals(mockUserFb.getName(), facebookUser.name);
+        assertEquals(mockUserFb.getId(), facebookUser2.idFacebook);
+        assertEquals(mockUserFb.getAccessToken(), facebookUser2.accessToken);
+        assertEquals(mockUserFb.getName(), facebookUser2.name);
+        assertEquals(mockUserFb.getPicture().getData().getUrl(), facebookUser2.pictureUrl);
     }
 
     @Test
@@ -70,6 +73,7 @@ public class FacebookUserDaoTest extends DaoTest
         assertEquals(mockUserFb.getId(), facebookUser.idFacebook);
         assertEquals(mockUserFb.getAccessToken(), facebookUser.accessToken);
         assertEquals(mockUserFb.getName(), facebookUser.name);
+        assertEquals(mockUserFb.getPicture().getData().getUrl(), facebookUser.pictureUrl);
         // Remove the record, which actually just sets a field to true
         Ebean.createNamedUpdate(FacebookUser.class, "removeByIdFacebook")
             .set("idFacebook", mockUserFb.getId())
@@ -77,32 +81,35 @@ public class FacebookUserDaoTest extends DaoTest
         // Another call to this method should yield the exact same record, but different Id
         FacebookUser facebookUser2 = FacebookUserDao.createUpdateFacebookUser(mockUserFb);
         assertNotSame(facebookUser.id, facebookUser2.id);
-        assertEquals(mockUserFb.getId(), facebookUser.idFacebook);
-        assertEquals(mockUserFb.getAccessToken(), facebookUser.accessToken);
-        assertEquals(mockUserFb.getName(), facebookUser.name);
+        assertEquals(mockUserFb.getId(), facebookUser2.idFacebook);
+        assertEquals(mockUserFb.getAccessToken(), facebookUser2.accessToken);
+        assertEquals(mockUserFb.getName(), facebookUser2.name);
+        assertEquals(mockUserFb.getPicture().getData().getUrl(), facebookUser2.pictureUrl);
     }
 
     @Test
-    public void testCreateUpdateFacebookUserNullAccessToken()
+    public void testCreateUpdateFacebookUserNullUpdate()
     {
         // Create their info record
         FacebookUser facebookUser = FacebookUserDao.createUpdateFacebookUser(mockUserFb);
         assertEquals(mockUserFb.getId(), facebookUser.idFacebook);
         assertEquals(mockUserFb.getAccessToken(), facebookUser.accessToken);
         assertEquals(mockUserFb.getName(), facebookUser.name);
+        assertEquals(mockUserFb.getPicture().getData().getUrl(), facebookUser.pictureUrl);
         // Set the access token to null.
         Facebook.User mockUserFb2 = mock(Facebook.User.class);
         String originalId = mockUserFb.getId();
-        String originalName = mockUserFb.getName();
         when(mockUserFb2.getId()).thenReturn(originalId);
         when(mockUserFb2.getAccessToken()).thenReturn(null);
-        when(mockUserFb2.getName()).thenReturn(originalName);
-        // Another call to this method should yield the original access token
+        when(mockUserFb2.getName()).thenReturn(null);
+        when(mockUserFb2.getPicture()).thenReturn(null);
+        // Another call to this method should yield the original data
         FacebookUser facebookUser2 = FacebookUserDao.createUpdateFacebookUser(mockUserFb);
         assertEquals(facebookUser.id, facebookUser2.id);
-        assertEquals(mockUserFb.getId(), facebookUser.idFacebook);
-        assertEquals(mockUserFb.getAccessToken(), facebookUser.accessToken);
-        assertEquals(mockUserFb.getName(), facebookUser.name);
+        assertEquals(mockUserFb.getId(), facebookUser2.idFacebook);
+        assertEquals(mockUserFb.getAccessToken(), facebookUser2.accessToken);
+        assertEquals(mockUserFb.getName(), facebookUser2.name);
+        assertEquals(mockUserFb.getPicture().getData().getUrl(), facebookUser2.pictureUrl);
     }
 
     @Test
@@ -110,9 +117,6 @@ public class FacebookUserDaoTest extends DaoTest
     {
         // Create their info record
         FacebookUser facebookUser = FacebookUserDao.createUpdateFacebookUser(mockUserFb);
-        assertEquals(mockUserFb.getId(), facebookUser.idFacebook);
-        assertEquals(mockUserFb.getAccessToken(), facebookUser.accessToken);
-        assertEquals(mockUserFb.getName(), facebookUser.name);
         // Now create their friends.
         FacebookUserDao.createUpdateFacebookUserFriends(facebookUser, mockUserFb);
         // Friend should have been created.
@@ -153,5 +157,17 @@ public class FacebookUserDaoTest extends DaoTest
             .findList();
         assertEquals(1, friendFacebookUsers.size());
         assertEquals(mockUserFb.getFriends().get(0).getId(), friendFacebookUsers.get(0).idFacebook);
+    }
+
+    @Test
+    public void testCreateUpdateFacebookUserFriendsNull()
+    {
+        Facebook.User mockUserFb2 = mock(Facebook.User.class);
+        String originalId = mockUserFb.getId();
+        when(mockUserFb2.getId()).thenReturn(originalId);
+        when(mockUserFb2.getFriends()).thenReturn(null);
+        // Now try to create their friends.
+        FacebookUserDao.createUpdateFacebookUserFriends(new FacebookUser(), mockUserFb2);
+        // TODO: assert existing friends were not touched.
     }
 }

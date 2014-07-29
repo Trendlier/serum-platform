@@ -31,7 +31,16 @@ public class FacebookUserDao
         {
             facebookUser.accessToken = userFb.getAccessToken();
         }
-        facebookUser.name = userFb.getName();
+        if (userFb.getName() != null)
+        {
+            facebookUser.name = userFb.getName();
+        }
+        if (userFb.getPicture() != null &&
+            userFb.getPicture().getData() != null &&
+            userFb.getPicture().getData().getUrl() != null)
+        {
+            facebookUser.pictureUrl = userFb.getPicture().getData().getUrl();
+        }
         Ebean.save(facebookUser);
         return facebookUser;
     }
@@ -95,6 +104,10 @@ public class FacebookUserDao
 
     public static void createUpdateFacebookUserFriends(FacebookUser facebookUser, Facebook.User userFb)
     {
+        if (userFb.getFriends() == null)
+        {
+            return;
+        }
         Set<String> facebookFriendIds = getFacebookFriendIds(userFb);
         Map<String, FacebookUserFriend> existingFacebookFriendMap = getFacebookUserFriendMap(facebookUser);
         Map<String, FacebookUser> existingFacebookUserOfFriendMap = getFacebookUserMapByIds(facebookFriendIds);

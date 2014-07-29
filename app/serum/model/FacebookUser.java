@@ -55,6 +55,9 @@ public class FacebookUser
     @Column(name="name")
     public String name;
 
+    @Column(name="picture_url")
+    public String pictureUrl;
+
     @Column(name="created_utc")
     @Temporal(TemporalType.TIMESTAMP)
     public Calendar createdUTC;

@@ -92,4 +92,39 @@ public class FacebookTest
         Facebook facebook = new Facebook(mockFacebookClient);
         facebook.pullFriends(mockUserFb);
     }
+
+    @Test
+    public void testPullPicture()
+    throws Exception
+    {
+        // Create mock Facebook user
+        Facebook.User mockUserFb = mock(Facebook.User.class);
+        // Create mock picture
+        Facebook.User.Picture mockPicture = new Facebook.User.Picture("http://trendlier.com/xyz.jpeg");
+        // Create mock of underlying client
+        FacebookClient mockFacebookClient = mock(DefaultFacebookClient.class);
+        Parameter redirectFalse = Parameter.with("redirect", false);
+        when(mockFacebookClient.fetchObject("me/picture", Facebook.User.Picture.class, redirectFalse))
+            .thenReturn(mockPicture);
+
+        Facebook facebook = new Facebook(mockFacebookClient);
+        facebook.pullPicture(mockUserFb);
+        verify(mockUserFb).setPicture(mockPicture);
+    }
+
+    @Test(expected=Facebook.AuthenticationException.class)
+    public void testPullPictureOAuthFailure()
+    throws Exception
+    {
+        // Create mock Facebook user
+        Facebook.User mockUserFb = mock(Facebook.User.class);
+        // Create mock of underlying client
+        FacebookClient mockFacebookClient = mock(DefaultFacebookClient.class);
+        Parameter redirectFalse = Parameter.with("redirect", false);
+        when(mockFacebookClient.fetchObject("me/picture", Facebook.User.Picture.class, redirectFalse))
+            .thenThrow(FacebookOAuthException.class);
+
+        Facebook facebook = new Facebook(mockFacebookClient);
+        facebook.pullPicture(mockUserFb);
+    }
 }
