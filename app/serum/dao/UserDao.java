@@ -40,7 +40,7 @@ public class UserDao
         return facebookUser.user;
     }
 
-    public static void createUserAuthToken(User user)
+    protected static void createUserAuthToken(User user)
     throws Exception
     {
         if (user.userAuthToken == null || user.userAuthToken.isDeleted)
