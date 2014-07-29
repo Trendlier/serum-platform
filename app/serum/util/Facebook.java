@@ -22,6 +22,9 @@ public class Facebook
         // Object returned by Facebook API /user/picture
         public static class Picture
         {
+            public static final int DEFAULT_WIDTH = 100;
+            public static final int DEFAULT_HEIGHT = 100;
+
             @com.restfb.Facebook
             protected Data data;
 
@@ -147,13 +150,13 @@ public class Facebook
         return userFb;
     }
 
-    public void pullFriends(User userFb)
+    public void pullMyFriends(User userFb)
     throws AuthenticationException
     {
-        userFb.setFriends(getFriends());
+        userFb.setFriends(getMyFriends());
     }
 
-    protected List<User> getFriends()
+    protected List<User> getMyFriends()
     throws AuthenticationException
     {
         List<User> friends = null;
@@ -169,20 +172,23 @@ public class Facebook
         return friends;
     }
 
-    public void pullPicture(User userFb)
+    public void pullMyPicture(User userFb)
     throws AuthenticationException
     {
-        userFb.setPicture(getPicture());
+        userFb.setPicture(getMyPicture());
     }
 
-    protected User.Picture getPicture()
+    protected User.Picture getMyPicture()
     throws AuthenticationException
     {
         User.Picture picture = null;
         try
         {
             Parameter redirectFalse = Parameter.with("redirect", false);
-            picture = facebookClient.fetchObject("me/picture", User.Picture.class, redirectFalse);
+            Parameter widthParam = Parameter.with("width", User.Picture.DEFAULT_WIDTH);
+            Parameter heightParam = Parameter.with("height", User.Picture.DEFAULT_HEIGHT);
+            picture = facebookClient.fetchObject("me/picture", User.Picture.class,
+                redirectFalse, widthParam, heightParam);
         }
         catch (FacebookOAuthException e)
         {

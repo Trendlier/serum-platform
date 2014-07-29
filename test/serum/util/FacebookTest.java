@@ -74,7 +74,7 @@ public class FacebookTest
         when(mockFacebookClient.fetchConnection("me/friends", Facebook.User.class)).thenReturn(mockConnectionFriends);
 
         Facebook facebook = new Facebook(mockFacebookClient);
-        facebook.pullFriends(mockUserFb);
+        facebook.pullMyFriends(mockUserFb);
         verify(mockUserFb).setFriends(mockFriends);
     }
 
@@ -90,7 +90,7 @@ public class FacebookTest
             .thenThrow(FacebookOAuthException.class);
 
         Facebook facebook = new Facebook(mockFacebookClient);
-        facebook.pullFriends(mockUserFb);
+        facebook.pullMyFriends(mockUserFb);
     }
 
     @Test
@@ -104,11 +104,14 @@ public class FacebookTest
         // Create mock of underlying client
         FacebookClient mockFacebookClient = mock(DefaultFacebookClient.class);
         Parameter redirectFalse = Parameter.with("redirect", false);
-        when(mockFacebookClient.fetchObject("me/picture", Facebook.User.Picture.class, redirectFalse))
+        when(mockFacebookClient.fetchObject(eq("me/picture"), eq(Facebook.User.Picture.class),
+                anyObject(),
+                anyObject(),
+                anyObject()))
             .thenReturn(mockPicture);
 
         Facebook facebook = new Facebook(mockFacebookClient);
-        facebook.pullPicture(mockUserFb);
+        facebook.pullMyPicture(mockUserFb);
         verify(mockUserFb).setPicture(mockPicture);
     }
 
@@ -120,11 +123,13 @@ public class FacebookTest
         Facebook.User mockUserFb = mock(Facebook.User.class);
         // Create mock of underlying client
         FacebookClient mockFacebookClient = mock(DefaultFacebookClient.class);
-        Parameter redirectFalse = Parameter.with("redirect", false);
-        when(mockFacebookClient.fetchObject("me/picture", Facebook.User.Picture.class, redirectFalse))
+        when(mockFacebookClient.fetchObject(eq("me/picture"), eq(Facebook.User.Picture.class),
+                anyObject(),
+                anyObject(),
+                anyObject()))
             .thenThrow(FacebookOAuthException.class);
 
         Facebook facebook = new Facebook(mockFacebookClient);
-        facebook.pullPicture(mockUserFb);
+        facebook.pullMyPicture(mockUserFb);
     }
 }
