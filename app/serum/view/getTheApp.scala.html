@@ -1,0 +1,35 @@
+@(app_url: String, ios_store_url: String, android_store_url: String)
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width"/>
+        <noscript><meta http-equiv="refresh" content="0; url=@{app_url}"></noscript>
+    </head>
+    <body>
+        <div id="message">
+            <a href="@{ios_store_url}">Serum iPhone app</a>
+            <a href="@{android_store_url}">Serum Android app</a>
+        </div>
+        <script type="text/javascript" charset="utf-8">
+            // Redirect to store URL if that didn't work after a certain amount of time
+            setTimeout(
+                function()
+                {
+                    var userAgent = window.navigator.userAgent;
+                    if (userAgent.match(/iPad/i) || userAgent.match(/iPhone/i))
+                    {
+                        // Redirect to iTunes page
+                        window.location = "@{ios_store_url}";
+                    }
+                    else if (userAgent.match(/Android/i))
+                    {
+                        // Redirect to Play Store page
+                        window.location = "@{android_store_url}";
+                    }
+                },
+                5);
+            // Redirect to custom URL scheme
+            window.location = "@{app_url}";
+        </script>
+    </body>
+</html>

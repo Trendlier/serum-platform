@@ -5,6 +5,9 @@
 # Rest services
 POST    /login                      serum.controller.LoginController.login
 
+# Get-the-app page
+GET     /getTheApp                  serum.controller.GetTheAppController.index
+
 # Chat client page
 GET     /client                     serum.controller.ChatClientController.index
 
