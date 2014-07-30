@@ -73,10 +73,7 @@ public class FacebookUserDao
         Map<String, FacebookUserFriend> facebookUserFriendMap = new HashMap<String, FacebookUserFriend>();
         for (FacebookUserFriend facebookUserFriend: facebookUser.friends)
         {
-            if (!facebookUserFriend.isDeleted)
-            {
-                facebookUserFriendMap.put(facebookUserFriend.facebookUserOfFriend.idFacebook, facebookUserFriend);
-            }
+            facebookUserFriendMap.put(facebookUserFriend.facebookUserOfFriend.idFacebook, facebookUserFriend);
         }
         return facebookUserFriendMap;
     }
@@ -111,9 +108,9 @@ public class FacebookUserDao
         // Remove each friend that is currently in the old list but not in the new list.
         for (String idFacebook: existingFacebookFriendMap.keySet())
         {
-            if (!facebookFriendIds.contains(idFacebook))
+            FacebookUserFriend facebookUserFriend = existingFacebookFriendMap.get(idFacebook);
+            if (!facebookFriendIds.contains(idFacebook) && !facebookUserFriend.isDeleted)
             {
-                FacebookUserFriend facebookUserFriend = existingFacebookFriendMap.get(idFacebook);
                 facebookUserFriend.isDeleted = true;
                 Ebean.save(facebookUserFriend);
             }
