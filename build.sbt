@@ -19,3 +19,5 @@ libraryDependencies += javaEbean
 libraryDependencies += "org.postgresql" % "postgresql" % "9.3-1102-jdbc41"
 
 libraryDependencies += "com.restfb" % "restfb" % "1.6.14"
+
+libraryDependencies += "com.amazonaws" % "aws-java-sdk" % "1.8.6"
