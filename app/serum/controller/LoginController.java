@@ -9,7 +9,7 @@ import static play.libs.Json.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import serum.util.Facebook;
+import serum.facebook.GraphAPI;
 
 import serum.rest.LoginRequest;
 import serum.rest.LoginResponse;
@@ -30,7 +30,7 @@ public class LoginController extends Controller {
     throws Exception
     {
         LoginResponse response = null;
-        Facebook.User userFb = null;
+        GraphAPI.User userFb = null;
         UserAuthToken userAuthToken = null;
         User user = null;
 
@@ -45,12 +45,12 @@ public class LoginController extends Controller {
                 {
                     try
                     {
-                        Facebook facebook = Facebook.getInstance(request.facebookAccessToken);
-                        userFb = facebook.checkUserInfoFromFacebook(request.facebookId, request.facebookAccessToken);
-                        facebook.pullMyPicture(userFb);
-                        facebook.pullMyFriends(userFb);
+                        GraphAPI graphApi = GraphAPI.getInstance(request.facebookAccessToken);
+                        userFb = graphApi.checkUserInfoFromFacebook(request.facebookId, request.facebookAccessToken);
+                        graphApi.pullMyPicture(userFb);
+                        graphApi.pullMyFriends(userFb);
                     }
-                    catch (Facebook.AuthenticationException e)
+                    catch (GraphAPI.AuthenticationException e)
                     {
                         Logger.error(
                             "Error authenticating " + request.facebookId + " with " +

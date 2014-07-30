@@ -13,23 +13,23 @@ import play.test.*;
 
 import serum.model.*;
 
-import serum.util.Facebook;
+import serum.facebook.GraphAPI;
 
 public class FacebookUserDaoTest extends DaoTest
 {
-    protected Facebook.User mockUserFb = null;
+    protected GraphAPI.User mockUserFb = null;
 
-    public static Facebook.User getFreshMockUserFb()
+    public static GraphAPI.User getFreshMockUserFb()
     {
         // Create mock Facebook user
-        Facebook.User mockUserFb = mock(Facebook.User.class);
+        GraphAPI.User mockUserFb = mock(GraphAPI.User.class);
         when(mockUserFb.getId()).thenReturn("123456");
         when(mockUserFb.getAccessToken()).thenReturn("abcdef");
         when(mockUserFb.getName()).thenReturn("Abc Def");
-        when(mockUserFb.getPicture()).thenReturn(new Facebook.User.Picture("http://trendlier.com/xyz.jpeg"));
+        when(mockUserFb.getPicture()).thenReturn(new GraphAPI.User.Picture("http://trendlier.com/xyz.jpeg"));
         // Create mock friends
-        List<Facebook.User> mockFriends = new ArrayList<Facebook.User>();
-        Facebook.User mockFriendUserFb = mock(Facebook.User.class);
+        List<GraphAPI.User> mockFriends = new ArrayList<GraphAPI.User>();
+        GraphAPI.User mockFriendUserFb = mock(GraphAPI.User.class);
         when(mockFriendUserFb.getId()).thenReturn("123459");
         when(mockFriendUserFb.getName()).thenReturn("Ghi Jkl");
         mockFriends.add(mockFriendUserFb);
@@ -103,7 +103,7 @@ public class FacebookUserDaoTest extends DaoTest
         assertEquals(mockUserFb.getName(), facebookUser.name);
         assertEquals(mockUserFb.getPicture().getData().getUrl(), facebookUser.pictureUrl);
         // Set the access token to null.
-        Facebook.User mockUserFb2 = mock(Facebook.User.class);
+        GraphAPI.User mockUserFb2 = mock(GraphAPI.User.class);
         String originalId = mockUserFb.getId();
         when(mockUserFb2.getId()).thenReturn(originalId);
         when(mockUserFb2.getAccessToken()).thenReturn(null);
@@ -134,7 +134,7 @@ public class FacebookUserDaoTest extends DaoTest
         assertEquals(mockUserFb.getFriends().get(0).getId(), friendFacebookUsers.get(0).idFacebook);
 
         // Let's make some friends. :)
-        Facebook.User mockFriendUserFb = mock(Facebook.User.class);
+        GraphAPI.User mockFriendUserFb = mock(GraphAPI.User.class);
         when(mockFriendUserFb.getId()).thenReturn("123462");
         when(mockFriendUserFb.getName()).thenReturn("Mno Pqr");
         mockUserFb.getFriends().add(mockFriendUserFb);
@@ -168,7 +168,7 @@ public class FacebookUserDaoTest extends DaoTest
     @Test
     public void testCreateUpdateFacebookUserFriendsNull()
     {
-        Facebook.User mockUserFb2 = mock(Facebook.User.class);
+        GraphAPI.User mockUserFb2 = mock(GraphAPI.User.class);
         String originalId = mockUserFb.getId();
         when(mockUserFb2.getId()).thenReturn(originalId);
         when(mockUserFb2.getFriends()).thenReturn(null);

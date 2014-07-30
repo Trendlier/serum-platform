@@ -1,4 +1,4 @@
-package serum.util;
+package serum.facebook;
 
 import java.util.*;
 
@@ -8,7 +8,7 @@ import com.restfb.exception.*;
 /**
  * Wrapper class for Facebook API
  */
-public class Facebook
+public class GraphAPI
 {
     protected FacebookClient facebookClient;
 
@@ -112,14 +112,14 @@ public class Facebook
         }
     }
 
-    public Facebook(FacebookClient facebookClient)
+    public GraphAPI(FacebookClient facebookClient)
     {
         this.facebookClient = facebookClient;
     }
 
-    public static Facebook getInstance(String facebookAccessToken)
+    public static GraphAPI getInstance(String facebookAccessToken)
     {
-        return new Facebook(new DefaultFacebookClient(facebookAccessToken));
+        return new GraphAPI(new DefaultFacebookClient(facebookAccessToken));
     }
 
     public User checkUserInfoFromFacebook(

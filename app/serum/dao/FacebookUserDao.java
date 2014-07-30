@@ -8,11 +8,11 @@ import play.db.ebean.*;
 
 import serum.model.*;
 
-import serum.util.Facebook;
+import serum.facebook.GraphAPI;
 
 public class FacebookUserDao
 {
-    public static FacebookUser createUpdateFacebookUser(Facebook.User userFb)
+    public static FacebookUser createUpdateFacebookUser(GraphAPI.User userFb)
     {
         FacebookUser facebookUser =
             Ebean.find(FacebookUser.class)
@@ -47,7 +47,7 @@ public class FacebookUserDao
         return facebookUser;
     }
 
-    protected static FacebookUser createFacebookUserOfFriend(Facebook.User userFb)
+    protected static FacebookUser createFacebookUserOfFriend(GraphAPI.User userFb)
     {
         FacebookUser facebookUser = new FacebookUser();
         facebookUser.idFacebook = userFb.getId();
@@ -56,11 +56,11 @@ public class FacebookUserDao
         return facebookUser;
     }
 
-    protected static Set<String> getFacebookFriendIds(Facebook.User userFb)
+    protected static Set<String> getFacebookFriendIds(GraphAPI.User userFb)
     {
         // Generate the list of Facebook IDs that should be in the friends list
         Set<String> facebookFriendIds = new HashSet<String>();
-        for (Facebook.User userFbOfFriend: userFb.getFriends())
+        for (GraphAPI.User userFbOfFriend: userFb.getFriends())
         {
             facebookFriendIds.add(userFbOfFriend.getId());
         }
@@ -96,7 +96,7 @@ public class FacebookUserDao
         return facebookUserMap;
     }
 
-    public static void createUpdateFacebookUserFriends(FacebookUser facebookUser, Facebook.User userFb)
+    public static void createUpdateFacebookUserFriends(FacebookUser facebookUser, GraphAPI.User userFb)
     {
         if (userFb.getFriends() == null)
         {
@@ -116,7 +116,7 @@ public class FacebookUserDao
             }
         }
         // Add each friend that currently is in the new list but not in the old list.
-        for (Facebook.User userFbOfFriend: userFb.getFriends())
+        for (GraphAPI.User userFbOfFriend: userFb.getFriends())
         {
             if (!existingFacebookFriendMap.containsKey(userFbOfFriend.getId()))
             {

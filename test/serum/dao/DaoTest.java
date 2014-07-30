@@ -11,10 +11,6 @@ import org.junit.*;
 import static org.mockito.Mockito.*;
 import play.test.*;
 
-import serum.model.*;
-
-import serum.util.Facebook;
-
 public class DaoTest
 {
     protected static FakeApplication app;

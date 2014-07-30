@@ -13,7 +13,7 @@ import play.test.*;
 
 import serum.model.*;
 
-import serum.util.Facebook;
+import serum.facebook.GraphAPI;
 
 public class UserDaoTest extends DaoTest
 {
@@ -21,7 +21,7 @@ public class UserDaoTest extends DaoTest
     public void testGetUserFromFacebookInfo()
     throws Exception
     {
-        Facebook.User mockUserFb = FacebookUserDaoTest.getFreshMockUserFb();
+        GraphAPI.User mockUserFb = FacebookUserDaoTest.getFreshMockUserFb();
         // Create in DB
         User user = UserDao.getUserFromFacebookInfo(mockUserFb);
         assertNotNull(user);
@@ -40,7 +40,7 @@ public class UserDaoTest extends DaoTest
     public void testGetUserByToken()
     throws Exception
     {
-        Facebook.User mockUserFb = FacebookUserDaoTest.getFreshMockUserFb();
+        GraphAPI.User mockUserFb = FacebookUserDaoTest.getFreshMockUserFb();
         // Create in DB
         User user = UserDao.getUserFromFacebookInfo(mockUserFb);
         assertNotNull(user);

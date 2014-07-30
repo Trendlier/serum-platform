@@ -8,11 +8,11 @@ import play.db.ebean.*;
 
 import serum.model.*;
 
-import serum.util.Facebook;
+import serum.facebook.GraphAPI;
 
 public class UserDao
 {
-    public static User getUserFromFacebookInfo(Facebook.User userFb)
+    public static User getUserFromFacebookInfo(GraphAPI.User userFb)
     throws Exception
     {
         FacebookUser facebookUser = null;
