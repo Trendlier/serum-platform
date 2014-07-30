@@ -17,6 +17,7 @@ public class FacebookUserDao
         FacebookUser facebookUser =
             Ebean.find(FacebookUser.class)
             .fetch("user")
+            .fetch("user.facebookUser")
             .fetch("user.userAuthToken")
             .where().and(
                 Expr.eq("idFacebook", userFb.getId()),

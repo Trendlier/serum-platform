@@ -25,6 +25,9 @@ public class UserDaoTest extends DaoTest
         // Create in DB
         User user = UserDao.getUserFromFacebookInfo(mockUserFb);
         assertNotNull(user);
+        // FacebookUser should be populated
+        assertNotNull(user.facebookUser);
+        assertEquals(mockUserFb.getId(), user.facebookUser.idFacebook);
         // Now fetch it again. It should have the same auth token.
         User user2 = UserDao.getUserFromFacebookInfo(mockUserFb);
         assertNotNull(user2);
