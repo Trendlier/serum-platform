@@ -17,28 +17,11 @@ import serum.util.Facebook;
 
 public class UserDaoTest extends DaoTest
 {
-    protected Facebook.User getFreshMockUserFb()
-    {
-        // Create mock Facebook user
-        Facebook.User mockUserFb = mock(Facebook.User.class);
-        when(mockUserFb.getId()).thenReturn("123456");
-        when(mockUserFb.getAccessToken()).thenReturn("abcdef");
-        when(mockUserFb.getName()).thenReturn("Abc Def");
-        // Make sure the Facebook user and their friends are deleted from our database
-        Ebean.createNamedUpdate(FacebookUserFriend.class, "deleteByIdFacebook")
-            .set("idFacebook", mockUserFb.getId())
-            .execute();
-        Ebean.createNamedUpdate(FacebookUser.class, "deleteByIdFacebook")
-            .set("idFacebook", mockUserFb.getId())
-            .execute();
-        return mockUserFb;
-    }
-
     @Test
     public void testGetUserFromFacebookInfo()
     throws Exception
     {
-        Facebook.User mockUserFb = getFreshMockUserFb();
+        Facebook.User mockUserFb = FacebookUserDaoTest.getFreshMockUserFb();
         // Create in DB
         User user = UserDao.getUserFromFacebookInfo(mockUserFb);
         assertNotNull(user);
@@ -48,5 +31,22 @@ public class UserDaoTest extends DaoTest
         assertEquals(user.userAuthToken.token, user2.userAuthToken.token);
         // Test the get token method returns the same token
         assertNotNull(UserDao.getUserAuthTokenByToken(user.userAuthToken.token));
+    }
+
+    @Test
+    public void testGetUserByToken()
+    throws Exception
+    {
+        Facebook.User mockUserFb = FacebookUserDaoTest.getFreshMockUserFb();
+        // Create in DB
+        User user = UserDao.getUserFromFacebookInfo(mockUserFb);
+        assertNotNull(user);
+        assertNotNull(user.userAuthToken);
+        // Look up user info by the same auth token
+        User user2 = UserDao.getUserByAuthToken(user.userAuthToken.token);
+        assertNotNull(user2);
+        assertEquals(user.id, user2.id);
+        assertEquals(user.userAuthToken.token, user2.userAuthToken.token);
+        assertNotNull(user2.facebookUser);
     }
 }

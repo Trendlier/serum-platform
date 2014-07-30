@@ -24,6 +24,7 @@ public class UserDao
             if (facebookUser.user == null)
             {
                 facebookUser.user = new User();
+                facebookUser.user.facebookUser = facebookUser;
                 Ebean.save(facebookUser.user);
                 Ebean.save(facebookUser);
             }
@@ -49,6 +50,19 @@ public class UserDao
             Ebean.save(userAuthToken);
             user.userAuthToken = userAuthToken;
         }
+    }
+
+    public static User getUserByAuthToken(String token)
+    {
+        User user =
+            Ebean.find(User.class)
+            .where().eq("userAuthToken.token", token)
+            .findUnique();
+        user.facebookUser =
+            Ebean.find(FacebookUser.class)
+            .where().eq("user", user)
+            .findUnique();
+        return user;
     }
 
     public static UserAuthToken getUserAuthTokenByToken(String token)
