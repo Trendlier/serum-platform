@@ -11,6 +11,35 @@ import com.restfb.exception.*;
 
 public class GraphAPITest
 {
+    public static GraphAPI.User getMockUserFb()
+    {
+        // Create mock Facebook user
+        // XXX: User contains methods that call other methods, so we have to use a spy
+        // instead of a mock.
+        GraphAPI.User mockUserFb = spy(new GraphAPI.User());
+        when(mockUserFb.getId()).thenReturn("123456");
+        when(mockUserFb.getAccessToken()).thenReturn("abcdef");
+        when(mockUserFb.getName()).thenReturn("Abc Def");
+        when(mockUserFb.getPicture()).thenReturn(new GraphAPI.User.Picture("http://trendlier.com/xyz.jpeg"));
+        // Create mock friends
+        List<GraphAPI.User> mockFriends = new ArrayList<GraphAPI.User>();
+        GraphAPI.User mockFriendUserFb = mock(GraphAPI.User.class);
+        when(mockFriendUserFb.getId()).thenReturn("123459");
+        when(mockFriendUserFb.getName()).thenReturn("Ghi Jkl");
+        mockFriends.add(mockFriendUserFb);
+        when(mockUserFb.getFriends()).thenReturn(mockFriends);
+        return mockUserFb;
+    }
+
+    @Test
+    public void testGetFriendIds()
+    {
+        GraphAPI.User mockUserFb = getMockUserFb();
+        Set<String> friendIds = mockUserFb.getFriendIds();
+        assertEquals(mockUserFb.getFriends().size(), friendIds.size());
+        assertTrue(friendIds.contains(mockUserFb.getFriends().get(0).getId()));
+    }
+
     @Test
     public void testCheckUserInfoFromFacebook()
     throws Exception

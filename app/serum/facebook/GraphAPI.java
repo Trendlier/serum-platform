@@ -102,6 +102,17 @@ public class GraphAPI
         {
             this.accessToken = accessToken;
         }
+
+        public Set<String> getFriendIds()
+        {
+            // Generate the list of Facebook IDs that should be in the friends list
+            Set<String> facebookFriendIds = new HashSet<String>();
+            for (User userFbOfFriend: getFriends())
+            {
+                facebookFriendIds.add(userFbOfFriend.getId());
+            }
+            return facebookFriendIds;
+        }
     }
 
     public static class AuthenticationException extends Exception

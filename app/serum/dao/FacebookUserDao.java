@@ -56,44 +56,19 @@ public class FacebookUserDao
         return facebookUser;
     }
 
-    protected static Set<String> getFacebookFriendIds(GraphAPI.User userFb)
-    {
-        // Generate the list of Facebook IDs that should be in the friends list
-        Set<String> facebookFriendIds = new HashSet<String>();
-        for (GraphAPI.User userFbOfFriend: userFb.getFriends())
-        {
-            facebookFriendIds.add(userFbOfFriend.getId());
-        }
-        return facebookFriendIds;
-    }
-
-    protected static Map<String, FacebookUserFriend> getFacebookUserFriendMap(FacebookUser facebookUser)
-    {
-        // Convert this list to a map of Facebook ID to Facebook-user-friend object for quick lookup.
-        Map<String, FacebookUserFriend> facebookUserFriendMap = new HashMap<String, FacebookUserFriend>();
-        for (FacebookUserFriend facebookUserFriend: facebookUser.friends)
-        {
-            facebookUserFriendMap.put(facebookUserFriend.facebookUserOfFriend.idFacebook, facebookUserFriend);
-        }
-        return facebookUserFriendMap;
-    }
-
     protected static Map<String, FacebookUser> getFacebookUserMapByIds(Set<String> facebookIds)
     {
+        if (facebookIds.isEmpty())
+        {
+            return new HashMap<String, FacebookUser>();
+        }
         // Get the list of facebookUsers that are currently in the friends list
         List<FacebookUser> facebookUserList =
-            Ebean.find(FacebookUser.class)
-            .where().and(
-                Expr.in("idFacebook", facebookIds),
-                Expr.eq("isDeleted", false))
+            Ebean.createNamedQuery(FacebookUser.class, "findUsersByIdFacebook")
+            .setParameter("idFacebookList", facebookIds)
             .findList();
         // Convert this list to a map of Facebook ID to Facebook user object for quick lookup.
-        Map<String, FacebookUser> facebookUserMap = new HashMap<String, FacebookUser>();
-        for (FacebookUser facebookUser: facebookUserList)
-        {
-            facebookUserMap.put(facebookUser.idFacebook, facebookUser);
-        }
-        return facebookUserMap;
+        return FacebookUser.getFacebookUserMap(facebookUserList);
     }
 
     public static void createUpdateFacebookUserFriends(FacebookUser facebookUser, GraphAPI.User userFb)
@@ -102,8 +77,8 @@ public class FacebookUserDao
         {
             return;
         }
-        Set<String> facebookFriendIds = getFacebookFriendIds(userFb);
-        Map<String, FacebookUserFriend> existingFacebookFriendMap = getFacebookUserFriendMap(facebookUser);
+        Set<String> facebookFriendIds = userFb.getFriendIds();
+        Map<String, FacebookUserFriend> existingFacebookFriendMap = facebookUser.getFacebookUserFriendMap();
         Map<String, FacebookUser> existingFacebookUserOfFriendMap = getFacebookUserMapByIds(facebookFriendIds);
         // Remove each friend that is currently in the old list but not in the new list.
         for (String idFacebook: existingFacebookFriendMap.keySet())

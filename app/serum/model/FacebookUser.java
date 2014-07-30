@@ -6,6 +6,11 @@ import com.avaje.ebean.annotation.*;
 
 @NamedQueries(value={
     @NamedQuery(
+        name="findUsersByIdFacebook",
+        query=
+            "where idFacebook in (:idFacebookList) " +
+            "and not isDeleted "),
+    @NamedQuery(
         name="findFriendsByIdFacebook",
         query="where id in ( " +
                   "SELECT ffu.id " +
@@ -75,5 +80,25 @@ public class FacebookUser
     public FacebookUser()
     {
         this.createdUTC = Calendar.getInstance(TimeZone.getTimeZone("Etc/UTC"));
+    }
+
+    public Map<String, FacebookUserFriend> getFacebookUserFriendMap()
+    {
+        Map<String, FacebookUserFriend> facebookUserFriendMap = new HashMap<String, FacebookUserFriend>();
+        for (FacebookUserFriend facebookUserFriend: friends)
+        {
+            facebookUserFriendMap.put(facebookUserFriend.facebookUserOfFriend.idFacebook, facebookUserFriend);
+        }
+        return facebookUserFriendMap;
+    }
+
+    public static Map<String, FacebookUser> getFacebookUserMap(List<FacebookUser> facebookUserList)
+    {
+        Map<String, FacebookUser> facebookUserMap = new HashMap<String, FacebookUser>();
+        for (FacebookUser facebookUser: facebookUserList)
+        {
+            facebookUserMap.put(facebookUser.idFacebook, facebookUser);
+        }
+        return facebookUserMap;
     }
 }

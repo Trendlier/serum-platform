@@ -13,6 +13,7 @@ import play.test.*;
 
 import serum.model.*;
 
+import serum.facebook.GraphAPITest;
 import serum.facebook.GraphAPI;
 
 public class FacebookUserDaoTest extends DaoTest
@@ -21,19 +22,7 @@ public class FacebookUserDaoTest extends DaoTest
 
     public static GraphAPI.User getFreshMockUserFb()
     {
-        // Create mock Facebook user
-        GraphAPI.User mockUserFb = mock(GraphAPI.User.class);
-        when(mockUserFb.getId()).thenReturn("123456");
-        when(mockUserFb.getAccessToken()).thenReturn("abcdef");
-        when(mockUserFb.getName()).thenReturn("Abc Def");
-        when(mockUserFb.getPicture()).thenReturn(new GraphAPI.User.Picture("http://trendlier.com/xyz.jpeg"));
-        // Create mock friends
-        List<GraphAPI.User> mockFriends = new ArrayList<GraphAPI.User>();
-        GraphAPI.User mockFriendUserFb = mock(GraphAPI.User.class);
-        when(mockFriendUserFb.getId()).thenReturn("123459");
-        when(mockFriendUserFb.getName()).thenReturn("Ghi Jkl");
-        mockFriends.add(mockFriendUserFb);
-        when(mockUserFb.getFriends()).thenReturn(mockFriends);
+        GraphAPI.User mockUserFb = GraphAPITest.getMockUserFb();
         // Make sure the Facebook user and their friends are deleted from our database
         Ebean.createNamedUpdate(FacebookUserFriend.class, "deleteByIdFacebook")
             .set("idFacebook", mockUserFb.getId())
@@ -42,7 +31,7 @@ public class FacebookUserDaoTest extends DaoTest
             .set("idFacebook", mockUserFb.getId())
             .execute();
         Ebean.createNamedUpdate(FacebookUser.class, "deleteByIdFacebook")
-            .set("idFacebook", mockFriendUserFb.getId())
+            .set("idFacebook", mockUserFb.getFriends().get(0).getId())
             .execute();
         return mockUserFb;
     }
