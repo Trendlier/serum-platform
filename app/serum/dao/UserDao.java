@@ -56,11 +56,10 @@ public class UserDao
     {
         User user =
             Ebean.find(User.class)
+            .fetch("userAuthToken")
+            .fetch("facebookUser")
+            .fetch("facebookUser.friends")
             .where().eq("userAuthToken.token", token)
-            .findUnique();
-        user.facebookUser =
-            Ebean.find(FacebookUser.class)
-            .where().eq("user", user)
             .findUnique();
         return user;
     }

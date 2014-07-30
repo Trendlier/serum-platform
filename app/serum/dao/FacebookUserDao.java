@@ -19,6 +19,7 @@ public class FacebookUserDao
             .fetch("user")
             .fetch("user.facebookUser")
             .fetch("user.userAuthToken")
+            .fetch("friends")
             .where().and(
                 Expr.eq("idFacebook", userFb.getId()),
                 Expr.eq("isDeleted", false))
@@ -68,19 +69,14 @@ public class FacebookUserDao
 
     protected static Map<String, FacebookUserFriend> getFacebookUserFriendMap(FacebookUser facebookUser)
     {
-        // Get the list of facebookUsers that are currently in the friends list
-        List<FacebookUserFriend> facebookUserFriendList =
-            Ebean.find(FacebookUserFriend.class)
-            .fetch("facebookUserOfFriend")
-            .where().and(
-                Expr.eq("facebookUser", facebookUser),
-                Expr.eq("isDeleted", false))
-            .findList();
         // Convert this list to a map of Facebook ID to Facebook-user-friend object for quick lookup.
         Map<String, FacebookUserFriend> facebookUserFriendMap = new HashMap<String, FacebookUserFriend>();
-        for (FacebookUserFriend facebookUserFriend: facebookUserFriendList)
+        for (FacebookUserFriend facebookUserFriend: facebookUser.friends)
         {
-            facebookUserFriendMap.put(facebookUserFriend.facebookUserOfFriend.idFacebook, facebookUserFriend);
+            if (!facebookUserFriend.isDeleted)
+            {
+                facebookUserFriendMap.put(facebookUserFriend.facebookUserOfFriend.idFacebook, facebookUserFriend);
+            }
         }
         return facebookUserFriendMap;
     }
@@ -134,6 +130,7 @@ public class FacebookUserDao
                 }
                 FacebookUserFriend facebookUserFriend = new FacebookUserFriend(facebookUser, facebookUserOfFriend);
                 Ebean.save(facebookUserFriend);
+                facebookUser.friends.add(facebookUserFriend);
             }
         }
     }

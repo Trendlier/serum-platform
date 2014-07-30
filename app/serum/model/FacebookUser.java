@@ -69,6 +69,9 @@ public class FacebookUser
     @Temporal(TemporalType.TIMESTAMP)
     public Calendar deletedUTC;
 
+    @OneToMany(mappedBy="facebookUser")
+    public Set<FacebookUserFriend> friends;
+
     public FacebookUser()
     {
         this.createdUTC = Calendar.getInstance(TimeZone.getTimeZone("Etc/UTC"));

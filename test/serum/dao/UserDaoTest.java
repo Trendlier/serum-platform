@@ -51,5 +51,7 @@ public class UserDaoTest extends DaoTest
         assertEquals(user.id, user2.id);
         assertEquals(user.userAuthToken.token, user2.userAuthToken.token);
         assertNotNull(user2.facebookUser);
+        assertNotNull(user2.facebookUser.friends);
+        assertTrue(user2.facebookUser.friends.size() > 0);
     }
 }
