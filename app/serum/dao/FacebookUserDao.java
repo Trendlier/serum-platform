@@ -52,6 +52,11 @@ public class FacebookUserDao
         FacebookUser facebookUser = new FacebookUser();
         facebookUser.idFacebook = userFb.getId();
         facebookUser.name = userFb.getName();
+        if (userFb.getPicture() != null &&
+            userFb.getPicture().getData() != null)
+        {
+            facebookUser.pictureUrl = userFb.getPicture().getData().getUrl();
+        }
         Ebean.save(facebookUser);
         return facebookUser;
     }

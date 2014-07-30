@@ -120,7 +120,12 @@ public class FacebookUserDaoTest extends DaoTest
             .setParameter("idFacebook", facebookUser.idFacebook)
             .findList();
         assertEquals(1, friendFacebookUsers.size());
+        // Assert that the data we expect about facebook friends are stored
         assertEquals(mockUserFb.getFriends().get(0).getId(), friendFacebookUsers.get(0).idFacebook);
+        assertEquals(mockUserFb.getFriends().get(0).getName(), friendFacebookUsers.get(0).name);
+        assertEquals(
+            mockUserFb.getFriends().get(0).getPicture().getData().getUrl(),
+            friendFacebookUsers.get(0).pictureUrl);
 
         // Let's make some friends. :)
         GraphAPI.User mockFriendUserFb = mock(GraphAPI.User.class);

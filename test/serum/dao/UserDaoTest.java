@@ -18,18 +18,19 @@ import serum.facebook.GraphAPI;
 public class UserDaoTest extends DaoTest
 {
     @Test
-    public void testGetUserFromFacebookInfo()
+    public void testCreateUpdateUserFromFacebookInfo()
     throws Exception
     {
         GraphAPI.User mockUserFb = FacebookUserDaoTest.getFreshMockUserFb();
         // Create in DB
-        User user = UserDao.getUserFromFacebookInfo(mockUserFb);
+        User user = UserDao.createUpdateUserFromFacebookInfo(mockUserFb);
         assertNotNull(user);
         // FacebookUser should be populated
         assertNotNull(user.facebookUser);
         assertEquals(mockUserFb.getId(), user.facebookUser.idFacebook);
-        // Now fetch it again. It should have the same auth token.
-        User user2 = UserDao.getUserFromFacebookInfo(mockUserFb);
+        // Now try to create/update it again. This should just retrieve the existing one.
+        // Thus, it should have the same auth token.
+        User user2 = UserDao.createUpdateUserFromFacebookInfo(mockUserFb);
         assertNotNull(user2);
         assertEquals(user.userAuthToken.token, user2.userAuthToken.token);
         // Test the get token method returns the same token
@@ -42,9 +43,11 @@ public class UserDaoTest extends DaoTest
     {
         GraphAPI.User mockUserFb = FacebookUserDaoTest.getFreshMockUserFb();
         // Create in DB
-        User user = UserDao.getUserFromFacebookInfo(mockUserFb);
+        User user = UserDao.createUpdateUserFromFacebookInfo(mockUserFb);
         assertNotNull(user);
         assertNotNull(user.userAuthToken);
+        // Update friends in DB
+        FacebookUserDao.createUpdateFacebookUserFriends(user.facebookUser, mockUserFb);
         // Look up user info by the same auth token
         User user2 = UserDao.getUserByAuthToken(user.userAuthToken.token);
         assertNotNull(user2);

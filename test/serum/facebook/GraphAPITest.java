@@ -26,6 +26,7 @@ public class GraphAPITest
         GraphAPI.User mockFriendUserFb = mock(GraphAPI.User.class);
         when(mockFriendUserFb.getId()).thenReturn("123459");
         when(mockFriendUserFb.getName()).thenReturn("Ghi Jkl");
+        when(mockFriendUserFb.getPicture()).thenReturn(new GraphAPI.User.Picture("http://trendlier.com/zyx.jpeg"));
         mockFriends.add(mockFriendUserFb);
         when(mockUserFb.getFriends()).thenReturn(mockFriends);
         return mockUserFb;
@@ -49,7 +50,8 @@ public class GraphAPITest
         when(mockUserFb.getId()).thenReturn("123456");
         // Create mock of underlying client
         FacebookClient mockFacebookClient = mock(DefaultFacebookClient.class);
-        when(mockFacebookClient.fetchObject("me", GraphAPI.User.class)).thenReturn(mockUserFb);
+        when(mockFacebookClient.fetchObject(eq("me"), eq(GraphAPI.User.class), anyObject()))
+            .thenReturn(mockUserFb);
 
         GraphAPI graphApi = new GraphAPI(mockFacebookClient);
         GraphAPI.User userFb = graphApi.checkUserInfoFromFacebook("123456", "abcdef");
@@ -66,7 +68,8 @@ public class GraphAPITest
         when(mockUserFb.getId()).thenReturn("123456");
         // Create mock of underlying client
         FacebookClient mockFacebookClient = mock(DefaultFacebookClient.class);
-        when(mockFacebookClient.fetchObject("me", GraphAPI.User.class)).thenReturn(mockUserFb);
+        when(mockFacebookClient.fetchObject(eq("me"), eq(GraphAPI.User.class), anyObject()))
+            .thenReturn(mockUserFb);
 
         GraphAPI graphApi = new GraphAPI(mockFacebookClient);
         GraphAPI.User userFb = graphApi.checkUserInfoFromFacebook("654321", "abcdef");
@@ -78,7 +81,7 @@ public class GraphAPITest
     {
         // Create mock of underlying client
         FacebookClient mockFacebookClient = mock(DefaultFacebookClient.class);
-        when(mockFacebookClient.fetchObject("me", GraphAPI.User.class))
+        when(mockFacebookClient.fetchObject(eq("me"), eq(GraphAPI.User.class), anyObject()))
             .thenThrow(FacebookOAuthException.class);
 
         GraphAPI graphApi = new GraphAPI(mockFacebookClient);
@@ -100,7 +103,8 @@ public class GraphAPITest
         when(mockConnectionFriends.getData()).thenReturn(mockFriends);
         // Create mock of underlying client
         FacebookClient mockFacebookClient = mock(DefaultFacebookClient.class);
-        when(mockFacebookClient.fetchConnection("me/friends", GraphAPI.User.class)).thenReturn(mockConnectionFriends);
+        when(mockFacebookClient.fetchConnection(eq("me/friends"), eq(GraphAPI.User.class), anyObject()))
+            .thenReturn(mockConnectionFriends);
 
         GraphAPI graphApi = new GraphAPI(mockFacebookClient);
         graphApi.pullMyFriends(mockUserFb);
@@ -115,50 +119,10 @@ public class GraphAPITest
         GraphAPI.User mockUserFb = mock(GraphAPI.User.class);
         // Create mock of underlying client
         FacebookClient mockFacebookClient = mock(DefaultFacebookClient.class);
-        when(mockFacebookClient.fetchConnection("me/friends", GraphAPI.User.class))
+        when(mockFacebookClient.fetchConnection(eq("me/friends"), eq(GraphAPI.User.class), anyObject()))
             .thenThrow(FacebookOAuthException.class);
 
         GraphAPI graphApi = new GraphAPI(mockFacebookClient);
         graphApi.pullMyFriends(mockUserFb);
-    }
-
-    @Test
-    public void testPullPicture()
-    throws Exception
-    {
-        // Create mock Facebook user
-        GraphAPI.User mockUserFb = mock(GraphAPI.User.class);
-        // Create mock picture
-        GraphAPI.User.Picture mockPicture = new GraphAPI.User.Picture("http://trendlier.com/xyz.jpeg");
-        // Create mock of underlying client
-        FacebookClient mockFacebookClient = mock(DefaultFacebookClient.class);
-        Parameter redirectFalse = Parameter.with("redirect", false);
-        when(mockFacebookClient.fetchObject(eq("me/picture"), eq(GraphAPI.User.Picture.class),
-                anyObject(),
-                anyObject(),
-                anyObject()))
-            .thenReturn(mockPicture);
-
-        GraphAPI graphApi = new GraphAPI(mockFacebookClient);
-        graphApi.pullMyPicture(mockUserFb);
-        verify(mockUserFb).setPicture(mockPicture);
-    }
-
-    @Test(expected=GraphAPI.AuthenticationException.class)
-    public void testPullPictureOAuthFailure()
-    throws Exception
-    {
-        // Create mock Facebook user
-        GraphAPI.User mockUserFb = mock(GraphAPI.User.class);
-        // Create mock of underlying client
-        FacebookClient mockFacebookClient = mock(DefaultFacebookClient.class);
-        when(mockFacebookClient.fetchObject(eq("me/picture"), eq(GraphAPI.User.Picture.class),
-                anyObject(),
-                anyObject(),
-                anyObject()))
-            .thenThrow(FacebookOAuthException.class);
-
-        GraphAPI graphApi = new GraphAPI(mockFacebookClient);
-        graphApi.pullMyPicture(mockUserFb);
     }
 }

@@ -17,14 +17,15 @@ public class GraphAPI
     {
         protected List<User> friends;
         protected String accessToken;
+
+        @com.restfb.Facebook
         protected Picture picture;
+
+        public static final String STANDARD_FIELDS = "id,name,picture,picture.width(100),picture.height(100)";
 
         // Object returned by Facebook API /user/picture
         public static class Picture
         {
-            public static final int DEFAULT_WIDTH = 100;
-            public static final int DEFAULT_HEIGHT = 100;
-
             @com.restfb.Facebook
             protected Data data;
 
@@ -105,7 +106,6 @@ public class GraphAPI
 
         public Set<String> getFriendIds()
         {
-            // Generate the list of Facebook IDs that should be in the friends list
             Set<String> facebookFriendIds = new HashSet<String>();
             for (User userFbOfFriend: getFriends())
             {
@@ -144,7 +144,7 @@ public class GraphAPI
         // Get info about the user from Facebook
         try
         {
-            userFb = facebookClient.fetchObject("me", User.class);
+            userFb = facebookClient.fetchObject("me", User.class, Parameter.with("fields", User.STANDARD_FIELDS));
             if (!facebookId.equals(userFb.getId()))
             {
                 throw new AuthenticationException("Facebook user ID and access token do not match");
@@ -173,7 +173,9 @@ public class GraphAPI
         List<User> friends = null;
         try
         {
-            Connection<User> connectionFriends = facebookClient.fetchConnection("me/friends", User.class);
+            Connection<User> connectionFriends =
+                facebookClient.fetchConnection(
+                    "me/friends", User.class, Parameter.with("fields", User.STANDARD_FIELDS));
             friends = connectionFriends.getData();
         }
         catch (FacebookOAuthException e)
@@ -181,30 +183,5 @@ public class GraphAPI
             throw new AuthenticationException(e.getMessage());
         }
         return friends;
-    }
-
-    public void pullMyPicture(User userFb)
-    throws AuthenticationException
-    {
-        userFb.setPicture(getMyPicture());
-    }
-
-    protected User.Picture getMyPicture()
-    throws AuthenticationException
-    {
-        User.Picture picture = null;
-        try
-        {
-            Parameter redirectFalse = Parameter.with("redirect", false);
-            Parameter widthParam = Parameter.with("width", User.Picture.DEFAULT_WIDTH);
-            Parameter heightParam = Parameter.with("height", User.Picture.DEFAULT_HEIGHT);
-            picture = facebookClient.fetchObject("me/picture", User.Picture.class,
-                redirectFalse, widthParam, heightParam);
-        }
-        catch (FacebookOAuthException e)
-        {
-            throw new AuthenticationException(e.getMessage());
-        }
-        return picture;
     }
 }

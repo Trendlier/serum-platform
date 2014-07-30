@@ -12,7 +12,7 @@ import serum.facebook.GraphAPI;
 
 public class UserDao
 {
-    public static User getUserFromFacebookInfo(GraphAPI.User userFb)
+    public static User createUpdateUserFromFacebookInfo(GraphAPI.User userFb)
     throws Exception
     {
         FacebookUser facebookUser = null;
@@ -20,7 +20,6 @@ public class UserDao
         try
         {
             facebookUser = FacebookUserDao.createUpdateFacebookUser(userFb);
-            FacebookUserDao.createUpdateFacebookUserFriends(facebookUser, userFb);
             if (facebookUser.user == null)
             {
                 facebookUser.user = new User();

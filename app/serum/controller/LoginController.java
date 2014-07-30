@@ -5,7 +5,11 @@ import java.util.*;
 import play.*;
 import play.mvc.*;
 import play.libs.F.*;
+import play.libs.Akka;
 import static play.libs.Json.*;
+
+import java.util.concurrent.TimeUnit;
+import scala.concurrent.duration.Duration;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -18,6 +22,7 @@ import serum.model.User;
 import serum.model.UserAuthToken;
 
 import serum.dao.UserDao;
+import serum.dao.FacebookUserDao;
 
 public class LoginController extends Controller {
     /**
@@ -27,12 +32,9 @@ public class LoginController extends Controller {
      */
     @BodyParser.Of(BodyParser.Json.class)
     public static Result login()
-    throws Exception
     {
         LoginResponse response = null;
-        GraphAPI.User userFb = null;
         UserAuthToken userAuthToken = null;
-        User user = null;
 
         try
         {
@@ -45,10 +47,30 @@ public class LoginController extends Controller {
                 {
                     try
                     {
-                        GraphAPI graphApi = GraphAPI.getInstance(request.facebookAccessToken);
-                        userFb = graphApi.checkUserInfoFromFacebook(request.facebookId, request.facebookAccessToken);
-                        graphApi.pullMyPicture(userFb);
-                        graphApi.pullMyFriends(userFb);
+                        final GraphAPI graphApi = GraphAPI.getInstance(request.facebookAccessToken);
+                        final GraphAPI.User userFb =
+                            graphApi.checkUserInfoFromFacebook(request.facebookId, request.facebookAccessToken);
+                        final User user = UserDao.createUpdateUserFromFacebookInfo(userFb);
+                        userAuthToken = user.userAuthToken;
+
+                        // Pull Facebook friends data asynchronously
+                        Akka.system().scheduler().scheduleOnce(
+                            Duration.create(10, TimeUnit.MILLISECONDS),
+                            () -> {
+                                try
+                                {
+                                    graphApi.pullMyFriends(userFb);
+                                    FacebookUserDao.createUpdateFacebookUserFriends(user.facebookUser, userFb);
+                                }
+                                catch (GraphAPI.AuthenticationException e)
+                                {
+                                    Logger.error(
+                                        "Error authenticating " + request.facebookId + " with " +
+                                        request.facebookAccessToken + " with Facebook", e);
+                                }
+                            },
+                            Akka.system().dispatcher()
+                        );
                     }
                     catch (GraphAPI.AuthenticationException e)
                     {
@@ -58,8 +80,6 @@ public class LoginController extends Controller {
                         response = new LoginResponse(false, e.getMessage());
                         return badRequest(toJson(response));
                     }
-                    user = UserDao.getUserFromFacebookInfo(userFb);
-                    userAuthToken = user.userAuthToken;
                 }
                 else
                 {
