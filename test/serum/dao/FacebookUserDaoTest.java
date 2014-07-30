@@ -19,11 +19,10 @@ public class FacebookUserDaoTest extends DaoTest
 {
     protected Facebook.User mockUserFb = null;
 
-    @Before
-    public void setUp()
+    public static Facebook.User getFreshMockUserFb()
     {
         // Create mock Facebook user
-        mockUserFb = mock(Facebook.User.class);
+        Facebook.User mockUserFb = mock(Facebook.User.class);
         when(mockUserFb.getId()).thenReturn("123456");
         when(mockUserFb.getAccessToken()).thenReturn("abcdef");
         when(mockUserFb.getName()).thenReturn("Abc Def");
@@ -45,6 +44,13 @@ public class FacebookUserDaoTest extends DaoTest
         Ebean.createNamedUpdate(FacebookUser.class, "deleteByIdFacebook")
             .set("idFacebook", mockFriendUserFb.getId())
             .execute();
+        return mockUserFb;
+    }
+
+    @Before
+    public void setUp()
+    {
+        mockUserFb = getFreshMockUserFb();
     }
 
     @Test
