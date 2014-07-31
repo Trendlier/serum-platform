@@ -6,8 +6,6 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import static org.mockito.Mockito.*;
 
-import com.restfb.*;
-
 public class FacebookUserTest
 {
     @Test

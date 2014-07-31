@@ -38,7 +38,7 @@ public class UserDaoTest extends DaoTest
     }
 
     @Test
-    public void testGetUserByToken()
+    public void testGetUserByAuthToken()
     throws Exception
     {
         GraphAPI.User mockUserFb = FacebookUserDaoTest.getFreshMockUserFb();
