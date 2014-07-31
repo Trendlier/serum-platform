@@ -46,6 +46,8 @@ public class UserDaoTest extends DaoTest
         User user = UserDao.createUpdateUserFromFacebookInfo(mockUserFb);
         assertNotNull(user);
         assertNotNull(user.userAuthToken);
+        // Create a user for this user's Facebook friend too
+        User userOfFriend = UserDao.createUpdateUserFromFacebookInfo(mockUserFb.getFriends().get(0));
         // Update friends in DB
         FacebookUserDao.createUpdateFacebookUserFriends(user.facebookUser, mockUserFb);
         // Look up user info by the same auth token
@@ -54,7 +56,8 @@ public class UserDaoTest extends DaoTest
         assertEquals(user.id, user2.id);
         assertEquals(user.userAuthToken.token, user2.userAuthToken.token);
         assertNotNull(user2.facebookUser);
-        assertNotNull(user2.facebookUser.friends);
-        assertTrue(user2.facebookUser.friends.size() > 0);
+        assertNotNull(user2.getFriends());
+        assertTrue(user2.getFriends().size() > 0);
+        assertTrue(user2.getFriends().contains(userOfFriend));
     }
 }

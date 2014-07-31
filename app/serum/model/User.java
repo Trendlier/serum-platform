@@ -40,4 +40,27 @@ public class User
         this.threadCapacity = DEFAULT_THREAD_CAPACITY;
         this.createdUTC = Calendar.getInstance(TimeZone.getTimeZone("Etc/UTC"));
     }
+
+    /**
+     * Basically a view for friends linked to this user through other tables
+     */
+    public List<User> getFriends()
+    {
+        List<User> friends = new ArrayList<User>();
+        if (facebookUser != null && facebookUser.friends != null)
+        {
+            for (FacebookUserFriend facebookUserFriend: facebookUser.friends)
+            {
+                if (!facebookUserFriend.isDeleted &&
+                    !facebookUserFriend.facebookUserOfFriend.isDeleted &&
+                    facebookUserFriend.facebookUserOfFriend.user != null &&
+                    !facebookUserFriend.facebookUserOfFriend.user.isDeleted
+                )
+                {
+                    friends.add(facebookUserFriend.facebookUserOfFriend.user);
+                }
+            }
+        }
+        return friends;
+    }
 }

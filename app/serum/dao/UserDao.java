@@ -3,6 +3,7 @@ package serum.dao;
 import java.util.*;
 
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.Transaction;
 import com.avaje.ebean.Expr;
 import play.db.ebean.*;
 
@@ -16,28 +17,36 @@ public class UserDao
     throws Exception
     {
         FacebookUser facebookUser = null;
-        Ebean.beginTransaction();
+        Transaction transaction = Ebean.beginTransaction();
         try
         {
             facebookUser = FacebookUserDao.createUpdateFacebookUser(userFb);
-            if (facebookUser.user == null)
+            Ebean.refresh(facebookUser);
+            if (facebookUser.user != null)
             {
-                facebookUser.user = new User();
-                facebookUser.user.facebookUser = facebookUser;
-                Ebean.save(facebookUser.user);
-                Ebean.save(facebookUser);
+                Ebean.refresh(facebookUser.user);
             }
+            createUser(facebookUser);
             createUserAuthToken(facebookUser.user);
 
-            Ebean.commitTransaction();
-            Ebean.endTransaction();
+            transaction.commit();
         }
-        catch (Exception e)
+        finally
         {
-            Ebean.endTransaction();
-            throw(e);
+            transaction.end();
         }
         return facebookUser.user;
+    }
+
+    protected static void createUser(FacebookUser facebookUser)
+    {
+        if (facebookUser.user == null || facebookUser.user.isDeleted)
+        {
+            facebookUser.user = new User();
+            facebookUser.user.facebookUser = facebookUser;
+            Ebean.save(facebookUser.user);
+            Ebean.save(facebookUser);
+        }
     }
 
     protected static void createUserAuthToken(User user)
@@ -45,9 +54,10 @@ public class UserDao
     {
         if (user.userAuthToken == null || user.userAuthToken.isDeleted)
         {
-            UserAuthToken userAuthToken = new UserAuthToken(user);
-            Ebean.save(userAuthToken);
-            user.userAuthToken = userAuthToken;
+            user.userAuthToken = new UserAuthToken(user);
+            user.userAuthToken.user = user;
+            Ebean.save(user.userAuthToken);
+            Ebean.save(user);
         }
     }
 
@@ -58,6 +68,7 @@ public class UserDao
             .fetch("userAuthToken")
             .fetch("facebookUser")
             .fetch("facebookUser.friends")
+            .fetch("facebookUser.friends.facebookUserOfFriend.user")
             .where().eq("userAuthToken.token", token)
             .findUnique();
         return user;

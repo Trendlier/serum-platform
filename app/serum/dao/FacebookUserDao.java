@@ -3,6 +3,7 @@ package serum.dao;
 import java.util.*;
 
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.Transaction;
 import com.avaje.ebean.Expr;
 import play.db.ebean.*;
 
@@ -16,10 +17,6 @@ public class FacebookUserDao
     {
         FacebookUser facebookUser =
             Ebean.find(FacebookUser.class)
-            .fetch("user")
-            .fetch("user.facebookUser")
-            .fetch("user.userAuthToken")
-            .fetch("friends")
             .where().and(
                 Expr.eq("idFacebook", userFb.getId()),
                 Expr.eq("isDeleted", false))
@@ -78,37 +75,47 @@ public class FacebookUserDao
 
     public static void createUpdateFacebookUserFriends(FacebookUser facebookUser, GraphAPI.User userFb)
     {
-        if (userFb.getFriends() == null)
+        Transaction transaction = Ebean.beginTransaction();
+        try
         {
-            return;
-        }
-        Set<String> facebookFriendIds = userFb.getFriendIds();
-        Map<String, FacebookUserFriend> existingFacebookFriendMap = facebookUser.getFacebookUserFriendMap();
-        Map<String, FacebookUser> existingFacebookUserOfFriendMap = getFacebookUserMapByIds(facebookFriendIds);
-        // Remove each friend that is currently in the old list but not in the new list.
-        for (String idFacebook: existingFacebookFriendMap.keySet())
-        {
-            FacebookUserFriend facebookUserFriend = existingFacebookFriendMap.get(idFacebook);
-            if (!facebookFriendIds.contains(idFacebook) && !facebookUserFriend.isDeleted)
+            if (userFb.getFriends() == null)
             {
-                facebookUserFriend.isDeleted = true;
-                Ebean.save(facebookUserFriend);
+                return;
             }
-        }
-        // Add each friend that currently is in the new list but not in the old list.
-        for (GraphAPI.User userFbOfFriend: userFb.getFriends())
-        {
-            if (!existingFacebookFriendMap.containsKey(userFbOfFriend.getId()))
+            Set<String> facebookFriendIds = userFb.getFriendIds();
+            Ebean.refreshMany(facebookUser, "friends");
+            Map<String, FacebookUserFriend> existingFacebookFriendMap = facebookUser.getFacebookUserFriendMap();
+            Map<String, FacebookUser> existingFacebookUserOfFriendMap = getFacebookUserMapByIds(facebookFriendIds);
+            // Remove each friend that is currently in the old list but not in the new list.
+            for (String idFacebook: existingFacebookFriendMap.keySet())
             {
-                FacebookUser facebookUserOfFriend = existingFacebookUserOfFriendMap.get(userFbOfFriend.getId());
-                if (facebookUserOfFriend == null)
+                FacebookUserFriend facebookUserFriend = existingFacebookFriendMap.get(idFacebook);
+                if (!facebookFriendIds.contains(idFacebook) && !facebookUserFriend.isDeleted)
                 {
-                    facebookUserOfFriend = createFacebookUserOfFriend(userFbOfFriend);
+                    facebookUserFriend.isDeleted = true;
+                    Ebean.save(facebookUserFriend);
                 }
-                FacebookUserFriend facebookUserFriend = new FacebookUserFriend(facebookUser, facebookUserOfFriend);
-                Ebean.save(facebookUserFriend);
-                facebookUser.friends.add(facebookUserFriend);
             }
+            // Add each friend that currently is in the new list but not in the old list.
+            for (GraphAPI.User userFbOfFriend: userFb.getFriends())
+            {
+                if (!existingFacebookFriendMap.containsKey(userFbOfFriend.getId()))
+                {
+                    FacebookUser facebookUserOfFriend = existingFacebookUserOfFriendMap.get(userFbOfFriend.getId());
+                    if (facebookUserOfFriend == null)
+                    {
+                        facebookUserOfFriend = createFacebookUserOfFriend(userFbOfFriend);
+                    }
+                    FacebookUserFriend facebookUserFriend = new FacebookUserFriend(facebookUser, facebookUserOfFriend);
+                    Ebean.save(facebookUserFriend);
+                    facebookUser.friends.add(facebookUserFriend);
+                }
+            }
+            transaction.commit();
+        }
+        finally
+        {
+            transaction.end();
         }
     }
 }
