@@ -11,6 +11,19 @@ import serum.dao.DaoTest;
 public class FacebookUserTest extends DaoTest
 {
     @Test
+    public void testGetFacebookUserFriendMap()
+    {
+        FacebookUser facebookUser = new FacebookUser("345", "Emma");
+        FacebookUser facebookUserOfFriend = new FacebookUser("123", "Bob");
+        FacebookUserFriend facebookUserFriend = new FacebookUserFriend(facebookUser, facebookUserOfFriend);
+        facebookUser.friends = new HashSet<FacebookUserFriend>();
+        facebookUser.friends.add(facebookUserFriend);
+        Map<String, FacebookUserFriend> facebookUserFriendMap = facebookUser.getFacebookUserFriendMap();
+        assertEquals(1, facebookUserFriendMap.size());
+        assertEquals(facebookUserFriend, facebookUserFriendMap.get(facebookUserOfFriend.idFacebook));
+    }
+
+    @Test
     public void testGetFacebookUserMapByIds()
     {
         FacebookUser facebookUser = new FacebookUser("123", "Bob");

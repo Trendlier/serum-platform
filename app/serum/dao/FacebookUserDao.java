@@ -63,25 +63,6 @@ public class FacebookUserDao
         return facebookUser;
     }
 
-    protected static Map<String, FacebookUserFriend> getFacebookUserFriendMap(FacebookUser facebookUser)
-    {
-        List<FacebookUserFriend> friends =
-            JPA.em().createQuery(
-                "select f " +
-                "from FacebookUserFriend f " +
-                "where f.facebookUser = :facebookUser " +
-                "and f.isDeleted = false " +
-                "and f.facebookUserOfFriend.isDeleted = false ")
-            .setParameter("facebookUser", facebookUser)
-            .getResultList();
-        Map<String, FacebookUserFriend> facebookUserFriendMap = new HashMap<String, FacebookUserFriend>();
-        for (FacebookUserFriend facebookUserFriend: friends)
-        {
-            facebookUserFriendMap.put(facebookUserFriend.facebookUserOfFriend.idFacebook, facebookUserFriend);
-        }
-        return facebookUserFriendMap;
-    }
-
     protected static Map<String, FacebookUser> getFacebookUserMapByIds(Set<String> facebookIds)
     {
         if (facebookIds.isEmpty())
@@ -100,17 +81,20 @@ public class FacebookUserDao
         return FacebookUser.getFacebookUserMap(facebookUserList);
     }
 
-    @Transactional
     public static void createUpdateFacebookUserFriends(FacebookUser facebookUser, GraphAPI.User userFb)
     {
         if (userFb.getFriends() == null)
         {
             return;
         }
+        if (facebookUser.friends == null)
+        {
+            JPA.em().flush();
+            JPA.em().refresh(facebookUser);
+        }
         Set<String> facebookFriendIds = userFb.getFriendIds();
-        Map<String, FacebookUserFriend> existingFacebookFriendMap = getFacebookUserFriendMap(facebookUser);
+        Map<String, FacebookUserFriend> existingFacebookFriendMap = facebookUser.getFacebookUserFriendMap();
         Map<String, FacebookUser> existingFacebookUserOfFriendMap = getFacebookUserMapByIds(facebookFriendIds);
-        facebookUser.friends = new HashSet(existingFacebookFriendMap.values());
         // Remove each friend that is currently in the old list but not in the new list.
         for (String idFacebook: existingFacebookFriendMap.keySet())
         {

@@ -3,8 +3,6 @@ package serum.model;
 import java.util.*;
 import javax.persistence.*;
 
-import play.db.jpa.*;
-
 @Entity
 @Table(name="facebook_user")
 public class FacebookUser
@@ -54,6 +52,16 @@ public class FacebookUser
         this.idFacebook = idFacebook;
         this.name = name;
         this.createdUTC = Calendar.getInstance(TimeZone.getTimeZone("Etc/UTC"));
+    }
+
+    public Map<String, FacebookUserFriend> getFacebookUserFriendMap()
+    {
+        Map<String, FacebookUserFriend> facebookUserFriendMap = new HashMap<String, FacebookUserFriend>();
+        for (FacebookUserFriend facebookUserFriend: friends)
+        {
+            facebookUserFriendMap.put(facebookUserFriend.facebookUserOfFriend.idFacebook, facebookUserFriend);
+        }
+        return facebookUserFriendMap;
     }
 
     public static Map<String, FacebookUser> getFacebookUserMap(List<FacebookUser> facebookUserList)
