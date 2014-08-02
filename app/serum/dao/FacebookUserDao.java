@@ -182,7 +182,9 @@ public class FacebookUserDao
                 "delete FacebookUserFriend " +
                 "where facebookUser = ( " +
                   "select fu from FacebookUser fu " +
-                  "where fu.idFacebook = :idFacebook ) ")
+                  "where fu.idFacebook = :idFacebook " +
+                  "and fu.isDeleted = false " +
+                ") ")
             .setParameter("idFacebook", idFacebook)
             .executeUpdate();
     }

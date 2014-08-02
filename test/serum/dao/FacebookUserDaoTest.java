@@ -109,7 +109,6 @@ public class FacebookUserDaoTest extends DaoTest
         FacebookUser facebookUser = FacebookUserDao.createUpdateFacebookUser(mockUserFb);
         // Now create their friends.
         FacebookUserDao.createUpdateFacebookUserFriends(facebookUser, mockUserFb);
-        play.db.jpa.JPA.em().flush();
         // Friend should have been created.
         List<FacebookUser> friendFacebookUsers = FacebookUserDao.getFriendsByIdFacebook(facebookUser.idFacebook);
         assertEquals(1, friendFacebookUsers.size());
