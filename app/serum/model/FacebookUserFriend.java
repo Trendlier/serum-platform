@@ -32,6 +32,10 @@ public class FacebookUserFriend
     @Temporal(TemporalType.TIMESTAMP)
     public Calendar deletedUTC;
 
+    public FacebookUserFriend()
+    {
+    }
+
     public FacebookUserFriend(FacebookUser facebookUser, FacebookUser facebookUserOfFriend)
     {
         this.facebookUser = facebookUser;
