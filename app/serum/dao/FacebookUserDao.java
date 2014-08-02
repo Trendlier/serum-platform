@@ -2,10 +2,8 @@ package serum.dao;
 
 import java.util.*;
 
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.Transaction;
-import com.avaje.ebean.Expr;
-import play.db.ebean.*;
+import javax.persistence.*;
+import play.db.jpa.*;
 
 import serum.model.*;
 
@@ -15,15 +13,22 @@ public class FacebookUserDao
 {
     public static FacebookUser createUpdateFacebookUser(GraphAPI.User userFb)
     {
-        FacebookUser facebookUser =
-            Ebean.find(FacebookUser.class)
-            .where().and(
-                Expr.eq("idFacebook", userFb.getId()),
-                Expr.eq("isDeleted", false))
-            .findUnique();
-        if (facebookUser == null)
+        FacebookUser facebookUser;
+        try
         {
-            facebookUser = new FacebookUser();
+            facebookUser =
+                JPA.em().createQuery(
+                    "select fu " +
+                    "from FacebookUser fu " +
+                    "where fu.idFacebook = :idFacebook " +
+                    "and fu.isDeleted = false ",
+                    FacebookUser.class)
+                .setParameter("idFacebook", userFb.getId())
+                .getSingleResult();
+        }
+        catch (NoResultException e)
+        {
+            facebookUser = new FacebookUser(userFb.getId(), userFb.getName());
         }
         facebookUser.idFacebook = userFb.getId();
         if (userFb.getAccessToken() != null)
@@ -40,13 +45,13 @@ public class FacebookUserDao
         {
             facebookUser.pictureUrl = userFb.getPicture().getData().getUrl();
         }
-        Ebean.save(facebookUser);
+        JPA.em().persist(facebookUser);
         return facebookUser;
     }
 
     protected static FacebookUser createFacebookUserOfFriend(GraphAPI.User userFb)
     {
-        FacebookUser facebookUser = new FacebookUser();
+        FacebookUser facebookUser = new FacebookUser(userFb.getId(), userFb.getName());
         facebookUser.idFacebook = userFb.getId();
         facebookUser.name = userFb.getName();
         if (userFb.getPicture() != null &&
@@ -54,8 +59,27 @@ public class FacebookUserDao
         {
             facebookUser.pictureUrl = userFb.getPicture().getData().getUrl();
         }
-        Ebean.save(facebookUser);
+        JPA.em().persist(facebookUser);
         return facebookUser;
+    }
+
+    protected static Map<String, FacebookUserFriend> getFacebookUserFriendMap(FacebookUser facebookUser)
+    {
+        List<FacebookUserFriend> friends =
+            JPA.em().createQuery(
+                "select f " +
+                "from FacebookUserFriend f " +
+                "where f.facebookUser = :facebookUser " +
+                "and f.isDeleted = false " +
+                "and f.facebookUserOfFriend.isDeleted = false ")
+            .setParameter("facebookUser", facebookUser)
+            .getResultList();
+        Map<String, FacebookUserFriend> facebookUserFriendMap = new HashMap<String, FacebookUserFriend>();
+        for (FacebookUserFriend facebookUserFriend: friends)
+        {
+            facebookUserFriendMap.put(facebookUserFriend.facebookUserOfFriend.idFacebook, facebookUserFriend);
+        }
+        return facebookUserFriendMap;
     }
 
     protected static Map<String, FacebookUser> getFacebookUserMapByIds(Set<String> facebookIds)
@@ -64,58 +88,102 @@ public class FacebookUserDao
         {
             return new HashMap<String, FacebookUser>();
         }
-        // Get the list of facebookUsers that are currently in the friends list
         List<FacebookUser> facebookUserList =
-            Ebean.createNamedQuery(FacebookUser.class, "findUsersByIdFacebook")
-            .setParameter("idFacebookList", facebookIds)
-            .findList();
-        // Convert this list to a map of Facebook ID to Facebook user object for quick lookup.
+            JPA.em().createQuery(
+                "select fu " +
+                "from FacebookUser fu " +
+                "where fu.idFacebook in :facebookIds " +
+                "and fu.isDeleted = false",
+                FacebookUser.class)
+            .setParameter("facebookIds", facebookIds)
+            .getResultList();
         return FacebookUser.getFacebookUserMap(facebookUserList);
     }
 
+    @Transactional
     public static void createUpdateFacebookUserFriends(FacebookUser facebookUser, GraphAPI.User userFb)
     {
-        Transaction transaction = Ebean.beginTransaction();
-        try
+        if (userFb.getFriends() == null)
         {
-            if (userFb.getFriends() == null)
-            {
-                return;
-            }
-            Set<String> facebookFriendIds = userFb.getFriendIds();
-            Ebean.refreshMany(facebookUser, "friends");
-            Map<String, FacebookUserFriend> existingFacebookFriendMap = facebookUser.getFacebookUserFriendMap();
-            Map<String, FacebookUser> existingFacebookUserOfFriendMap = getFacebookUserMapByIds(facebookFriendIds);
-            // Remove each friend that is currently in the old list but not in the new list.
-            for (String idFacebook: existingFacebookFriendMap.keySet())
-            {
-                FacebookUserFriend facebookUserFriend = existingFacebookFriendMap.get(idFacebook);
-                if (!facebookFriendIds.contains(idFacebook) && !facebookUserFriend.isDeleted)
-                {
-                    facebookUserFriend.isDeleted = true;
-                    Ebean.save(facebookUserFriend);
-                }
-            }
-            // Add each friend that currently is in the new list but not in the old list.
-            for (GraphAPI.User userFbOfFriend: userFb.getFriends())
-            {
-                if (!existingFacebookFriendMap.containsKey(userFbOfFriend.getId()))
-                {
-                    FacebookUser facebookUserOfFriend = existingFacebookUserOfFriendMap.get(userFbOfFriend.getId());
-                    if (facebookUserOfFriend == null)
-                    {
-                        facebookUserOfFriend = createFacebookUserOfFriend(userFbOfFriend);
-                    }
-                    FacebookUserFriend facebookUserFriend = new FacebookUserFriend(facebookUser, facebookUserOfFriend);
-                    Ebean.save(facebookUserFriend);
-                    facebookUser.friends.add(facebookUserFriend);
-                }
-            }
-            transaction.commit();
+            return;
         }
-        finally
+        Set<String> facebookFriendIds = userFb.getFriendIds();
+        Map<String, FacebookUserFriend> existingFacebookFriendMap = getFacebookUserFriendMap(facebookUser);
+        Map<String, FacebookUser> existingFacebookUserOfFriendMap = getFacebookUserMapByIds(facebookFriendIds);
+        facebookUser.friends = new HashSet(existingFacebookFriendMap.values());
+        // Remove each friend that is currently in the old list but not in the new list.
+        for (String idFacebook: existingFacebookFriendMap.keySet())
         {
-            transaction.end();
+            FacebookUserFriend facebookUserFriend = existingFacebookFriendMap.get(idFacebook);
+            if (!facebookFriendIds.contains(idFacebook) && !facebookUserFriend.isDeleted)
+            {
+                facebookUserFriend.isDeleted = true;
+            }
         }
+        // Add each friend that currently is in the new list but not in the old list.
+        for (GraphAPI.User userFbOfFriend: userFb.getFriends())
+        {
+            if (!existingFacebookFriendMap.containsKey(userFbOfFriend.getId()))
+            {
+                FacebookUser facebookUserOfFriend = existingFacebookUserOfFriendMap.get(userFbOfFriend.getId());
+                if (facebookUserOfFriend == null)
+                {
+                    facebookUserOfFriend = createFacebookUserOfFriend(userFbOfFriend);
+                }
+                FacebookUserFriend facebookUserFriend = new FacebookUserFriend(facebookUser, facebookUserOfFriend);
+                JPA.em().persist(facebookUserFriend);
+                facebookUser.friends.add(facebookUserFriend);
+            }
+        }
+    }
+
+    public static List<FacebookUser> getFriendsByIdFacebook(String idFacebook)
+    {
+        return JPA.em().createQuery(
+                "select f.facebookUserOfFriend " +
+                "from FacebookUserFriend f " +
+                "where f.facebookUser.idFacebook = :idFacebook " +
+                "and f.isDeleted = false " +
+                "and f.facebookUserOfFriend.isDeleted = false ",
+                FacebookUser.class)
+            .setParameter("idFacebook", idFacebook)
+            .getResultList();
+    }
+
+    public static void removeFacebookUserById(String idFacebook)
+    {
+        JPA.em().createQuery(
+                "update FacebookUser set isDeleted = true " +
+                "where idFacebook = :idFacebook ")
+            .setParameter("idFacebook", idFacebook)
+            .executeUpdate();
+    }
+
+    /**
+     * This delete should only be used for testing purposes.
+     * Use remove-by-id instead, so we can track history.
+     */
+    protected static void deleteFacebookUserByIdFacebook(String idFacebook)
+    {
+        JPA.em().createQuery(
+                "delete FacebookUser " +
+                "where idFacebook = :idFacebook ")
+            .setParameter("idFacebook", idFacebook)
+            .executeUpdate();
+    }
+
+    /**
+     * This delete should only be used for testing purposes.
+     * Use remove-by-id instead, so we can track history.
+     */
+    protected static void deleteFacebookUserFriendByIdFacebook(String idFacebook)
+    {
+        JPA.em().createQuery(
+                "delete FacebookUserFriend " +
+                "where facebookUser = ( " +
+                  "select fu from FacebookUser fu " +
+                  "where fu.idFacebook = :idFacebook ) ")
+            .setParameter("idFacebook", idFacebook)
+            .executeUpdate();
     }
 }

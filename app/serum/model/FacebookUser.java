@@ -2,41 +2,9 @@ package serum.model;
 
 import java.util.*;
 import javax.persistence.*;
-import com.avaje.ebean.annotation.*;
 
-@NamedQueries(value={
-    @NamedQuery(
-        name="findUsersByIdFacebook",
-        query=
-            "where idFacebook in (:idFacebookList) " +
-            "and not isDeleted "),
-    @NamedQuery(
-        name="findFriendsByIdFacebook",
-        query="where id in ( " +
-                  "SELECT ffu.id " +
-                  "FROM facebook_user_friend fuf " +
-                  "INNER JOIN facebook_user fu ON fu.id = fuf.facebook_user_id " +
-                  "INNER JOIN facebook_user ffu ON ffu.id = fuf.facebook_user_id_of_friend " +
-                  "WHERE fu.id_facebook = :idFacebook " +
-                  "AND NOT fuf.is_deleted " +
-                  "AND NOT ffu.is_deleted " +
-                ") ")
-})
-@NamedUpdates(value={
-    @NamedUpdate(
-        name="removeByIdFacebook",
-        update=
-            "update FacebookUser " +
-            "set isDeleted = true " +
-            "where idFacebook = :idFacebook "),
-    // This delete should only be used for testing purposes.
-    // Use removeByIdFacebook instead, so we can track history.
-    @NamedUpdate(
-        name="deleteByIdFacebook",
-        update=
-            "delete from FacebookUser " +
-            "where idFacebook = :idFacebook ")
-})
+import play.db.jpa.*;
+
 @Entity
 @Table(name="facebook_user")
 public class FacebookUser
@@ -79,17 +47,13 @@ public class FacebookUser
 
     public FacebookUser()
     {
-        this.createdUTC = Calendar.getInstance(TimeZone.getTimeZone("Etc/UTC"));
     }
 
-    public Map<String, FacebookUserFriend> getFacebookUserFriendMap()
+    public FacebookUser(String idFacebook, String name)
     {
-        Map<String, FacebookUserFriend> facebookUserFriendMap = new HashMap<String, FacebookUserFriend>();
-        for (FacebookUserFriend facebookUserFriend: friends)
-        {
-            facebookUserFriendMap.put(facebookUserFriend.facebookUserOfFriend.idFacebook, facebookUserFriend);
-        }
-        return facebookUserFriendMap;
+        this.idFacebook = idFacebook;
+        this.name = name;
+        this.createdUTC = Calendar.getInstance(TimeZone.getTimeZone("Etc/UTC"));
     }
 
     public static Map<String, FacebookUser> getFacebookUserMap(List<FacebookUser> facebookUserList)

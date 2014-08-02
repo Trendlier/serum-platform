@@ -2,14 +2,12 @@ package serum.dao;
 
 import java.util.*;
 
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.Expr;
-import play.db.ebean.*;
-
 import static org.junit.Assert.*;
 import org.junit.*;
 import static org.mockito.Mockito.*;
 import play.test.*;
+
+import play.db.jpa.Transactional;
 
 import serum.model.*;
 
@@ -24,15 +22,9 @@ public class FacebookUserDaoTest extends DaoTest
     {
         GraphAPI.User mockUserFb = GraphAPITest.getMockUserFb();
         // Make sure the Facebook user and their friends are deleted from our database
-        Ebean.createNamedUpdate(FacebookUserFriend.class, "deleteByIdFacebook")
-            .set("idFacebook", mockUserFb.getId())
-            .execute();
-        Ebean.createNamedUpdate(FacebookUser.class, "deleteByIdFacebook")
-            .set("idFacebook", mockUserFb.getId())
-            .execute();
-        Ebean.createNamedUpdate(FacebookUser.class, "deleteByIdFacebook")
-            .set("idFacebook", mockUserFb.getFriends().get(0).getId())
-            .execute();
+        FacebookUserDao.deleteFacebookUserFriendByIdFacebook(mockUserFb.getId());
+        FacebookUserDao.deleteFacebookUserByIdFacebook(mockUserFb.getId());
+        FacebookUserDao.deleteFacebookUserByIdFacebook(mockUserFb.getFriends().get(0).getId());
         return mockUserFb;
     }
 
@@ -51,6 +43,7 @@ public class FacebookUserDaoTest extends DaoTest
         assertEquals(mockUserFb.getAccessToken(), facebookUser.accessToken);
         assertEquals(mockUserFb.getName(), facebookUser.name);
         assertEquals(mockUserFb.getPicture().getData().getUrl(), facebookUser.pictureUrl);
+
         // Another call to this method should yield the exact same record
         FacebookUser facebookUser2 = FacebookUserDao.createUpdateFacebookUser(mockUserFb);
         assertEquals(facebookUser.id, facebookUser2.id);
@@ -69,10 +62,10 @@ public class FacebookUserDaoTest extends DaoTest
         assertEquals(mockUserFb.getAccessToken(), facebookUser.accessToken);
         assertEquals(mockUserFb.getName(), facebookUser.name);
         assertEquals(mockUserFb.getPicture().getData().getUrl(), facebookUser.pictureUrl);
+
         // Remove the record, which actually just sets a field to true
-        Ebean.createNamedUpdate(FacebookUser.class, "removeByIdFacebook")
-            .set("idFacebook", mockUserFb.getId())
-            .execute();
+        FacebookUserDao.removeFacebookUserById(mockUserFb.getId());
+
         // Another call to this method should yield the exact same record, but different Id
         FacebookUser facebookUser2 = FacebookUserDao.createUpdateFacebookUser(mockUserFb);
         assertNotSame(facebookUser.id, facebookUser2.id);
@@ -91,13 +84,15 @@ public class FacebookUserDaoTest extends DaoTest
         assertEquals(mockUserFb.getAccessToken(), facebookUser.accessToken);
         assertEquals(mockUserFb.getName(), facebookUser.name);
         assertEquals(mockUserFb.getPicture().getData().getUrl(), facebookUser.pictureUrl);
-        // Set the access token to null.
+
+        // Set properties to null.
         GraphAPI.User mockUserFb2 = mock(GraphAPI.User.class);
         String originalId = mockUserFb.getId();
         when(mockUserFb2.getId()).thenReturn(originalId);
         when(mockUserFb2.getAccessToken()).thenReturn(null);
         when(mockUserFb2.getName()).thenReturn(null);
         when(mockUserFb2.getPicture()).thenReturn(null);
+
         // Another call to this method should yield the original data
         FacebookUser facebookUser2 = FacebookUserDao.createUpdateFacebookUser(mockUserFb);
         assertEquals(facebookUser.id, facebookUser2.id);
@@ -114,11 +109,9 @@ public class FacebookUserDaoTest extends DaoTest
         FacebookUser facebookUser = FacebookUserDao.createUpdateFacebookUser(mockUserFb);
         // Now create their friends.
         FacebookUserDao.createUpdateFacebookUserFriends(facebookUser, mockUserFb);
+        play.db.jpa.JPA.em().flush();
         // Friend should have been created.
-        List<FacebookUser> friendFacebookUsers =
-           Ebean.createNamedQuery(FacebookUser.class, "findFriendsByIdFacebook")
-            .setParameter("idFacebook", facebookUser.idFacebook)
-            .findList();
+        List<FacebookUser> friendFacebookUsers = FacebookUserDao.getFriendsByIdFacebook(facebookUser.idFacebook);
         assertEquals(1, friendFacebookUsers.size());
         // Assert that the data we expect about facebook friends are stored
         assertEquals(mockUserFb.getFriends().get(0).getId(), friendFacebookUsers.get(0).idFacebook);
@@ -138,10 +131,7 @@ public class FacebookUserDaoTest extends DaoTest
         Set<String> expectedFriendIds = new HashSet<String>();
         expectedFriendIds.add(mockUserFb.getFriends().get(0).getId());
         expectedFriendIds.add(mockUserFb.getFriends().get(1).getId());
-        friendFacebookUsers =
-           Ebean.createNamedQuery(FacebookUser.class, "findFriendsByIdFacebook")
-            .setParameter("idFacebook", facebookUser.idFacebook)
-            .findList();
+        friendFacebookUsers = FacebookUserDao.getFriendsByIdFacebook(facebookUser.idFacebook);
         assertEquals(2, friendFacebookUsers.size());
         assertTrue(expectedFriendIds.contains(friendFacebookUsers.get(0).idFacebook));
         assertTrue(expectedFriendIds.contains(friendFacebookUsers.get(1).idFacebook));
@@ -151,10 +141,7 @@ public class FacebookUserDaoTest extends DaoTest
         // Now run the method again.
         FacebookUserDao.createUpdateFacebookUserFriends(facebookUser, mockUserFb);
         // Friend should have been removed. Existing one should remain.
-        friendFacebookUsers =
-           Ebean.createNamedQuery(FacebookUser.class, "findFriendsByIdFacebook")
-            .setParameter("idFacebook", facebookUser.idFacebook)
-            .findList();
+        friendFacebookUsers = FacebookUserDao.getFriendsByIdFacebook(facebookUser.idFacebook);
         assertEquals(1, friendFacebookUsers.size());
         assertEquals(mockUserFb.getFriends().get(0).getId(), friendFacebookUsers.get(0).idFacebook);
     }
@@ -167,7 +154,9 @@ public class FacebookUserDaoTest extends DaoTest
         when(mockUserFb2.getId()).thenReturn(originalId);
         when(mockUserFb2.getFriends()).thenReturn(null);
         // Now try to create their friends.
-        FacebookUserDao.createUpdateFacebookUserFriends(new FacebookUser(), mockUserFb2);
+        FacebookUserDao.createUpdateFacebookUserFriends(
+            new FacebookUser(mockUserFb.getId(), mockUserFb.getName()),
+            mockUserFb2);
         // TODO: assert existing friends were not touched.
     }
 }

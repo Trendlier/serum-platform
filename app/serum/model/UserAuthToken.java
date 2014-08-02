@@ -37,6 +37,10 @@ public class UserAuthToken
     @Column(name="is_deleted")
     public boolean isDeleted;
 
+    public UserAuthToken()
+    {
+    }
+
     public UserAuthToken(User user)
     throws Exception
     {

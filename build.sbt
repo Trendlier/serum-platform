@@ -14,7 +14,9 @@ version := "1.0-SNAPSHOT"
 javaOptions += "-Duser.timezone=UTC"
 // P.S. DO. NOT. REMOVE!!!
 
-libraryDependencies += javaEbean
+libraryDependencies += javaJpa
+
+libraryDependencies += "org.hibernate" % "hibernate-entitymanager" % "3.6.9.Final"
 
 libraryDependencies += "org.postgresql" % "postgresql" % "9.3-1102-jdbc41"
 

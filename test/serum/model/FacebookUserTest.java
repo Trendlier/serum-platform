@@ -6,27 +6,14 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import static org.mockito.Mockito.*;
 
-public class FacebookUserTest
-{
-    @Test
-    public void testGetFacebookUserFriendMap()
-    {
-        FacebookUser facebookUser = new FacebookUser();
-        FacebookUser facebookUserOfFriend = new FacebookUser();
-        facebookUserOfFriend.idFacebook = "123";
-        FacebookUserFriend facebookUserFriend = new FacebookUserFriend(facebookUser, facebookUserOfFriend);
-        facebookUser.friends = new HashSet<FacebookUserFriend>();
-        facebookUser.friends.add(facebookUserFriend);
-        Map<String, FacebookUserFriend> facebookUserFriendMap = facebookUser.getFacebookUserFriendMap();
-        assertEquals(1, facebookUserFriendMap.size());
-        assertEquals(facebookUserFriend, facebookUserFriendMap.get(facebookUserOfFriend.idFacebook));
-    }
+import serum.dao.DaoTest;
 
+public class FacebookUserTest extends DaoTest
+{
     @Test
     public void testGetFacebookUserMapByIds()
     {
-        FacebookUser facebookUser = new FacebookUser();
-        facebookUser.idFacebook = "123";
+        FacebookUser facebookUser = new FacebookUser("123", "Bob");
         List<FacebookUser> facebookUserList = new ArrayList<FacebookUser>();
         facebookUserList.add(facebookUser);
         Map<String, FacebookUser> facebookUserMap = FacebookUser.getFacebookUserMap(facebookUserList);

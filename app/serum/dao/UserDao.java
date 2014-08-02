@@ -2,10 +2,8 @@ package serum.dao;
 
 import java.util.*;
 
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.Transaction;
-import com.avaje.ebean.Expr;
-import play.db.ebean.*;
+import javax.persistence.*;
+import play.db.jpa.*;
 
 import serum.model.*;
 
@@ -16,68 +14,52 @@ public class UserDao
     public static User createUpdateUserFromFacebookInfo(GraphAPI.User userFb)
     throws Exception
     {
-        FacebookUser facebookUser = null;
-        Transaction transaction = Ebean.beginTransaction();
-        try
+        FacebookUser facebookUser = FacebookUserDao.createUpdateFacebookUser(userFb);
+        if (facebookUser.user == null)
         {
-            facebookUser = FacebookUserDao.createUpdateFacebookUser(userFb);
-            Ebean.refresh(facebookUser);
-            if (facebookUser.user != null)
-            {
-                Ebean.refresh(facebookUser.user);
-            }
-            createUser(facebookUser);
-            createUserAuthToken(facebookUser.user);
-
-            transaction.commit();
+            facebookUser.user = new User();
+            facebookUser.user.facebookUser = facebookUser;
+            JPA.em().persist(facebookUser.user);
         }
-        finally
+        if (facebookUser.user.userAuthToken == null)
         {
-            transaction.end();
+            facebookUser.user.userAuthToken = new UserAuthToken(facebookUser.user);
+            JPA.em().persist(facebookUser.user.userAuthToken);
         }
         return facebookUser.user;
     }
 
-    protected static void createUser(FacebookUser facebookUser)
-    {
-        if (facebookUser.user == null || facebookUser.user.isDeleted)
-        {
-            facebookUser.user = new User();
-            facebookUser.user.facebookUser = facebookUser;
-            Ebean.save(facebookUser.user);
-            Ebean.save(facebookUser);
-        }
-    }
-
-    protected static void createUserAuthToken(User user)
-    throws Exception
-    {
-        if (user.userAuthToken == null || user.userAuthToken.isDeleted)
-        {
-            user.userAuthToken = new UserAuthToken(user);
-            user.userAuthToken.user = user;
-            Ebean.save(user.userAuthToken);
-            Ebean.save(user);
-        }
-    }
-
     public static User getUserByAuthToken(String token)
     {
-        User user =
-            Ebean.find(User.class)
-            .fetch("userAuthToken")
-            .fetch("facebookUser")
-            .fetch("facebookUser.friends")
-            .fetch("facebookUser.friends.facebookUserOfFriend.user")
-            .where().eq("userAuthToken.token", token)
-            .findUnique();
-        return user;
+        try
+        {
+            return JPA.em().createQuery(
+                    "select t.user from UserAuthToken t " +
+                    "where t.token = :token ",
+                    User.class)
+                .setParameter("token", token)
+                .getSingleResult();
+        }
+        catch (NoResultException e)
+        {
+            return null;
+        }
     }
 
     public static UserAuthToken getUserAuthTokenByToken(String token)
     {
-        return Ebean.find(UserAuthToken.class)
-            .where().eq("token", token)
-            .findUnique();
+        try
+        {
+            return JPA.em().createQuery(
+                    "select t from UserAuthToken t " +
+                    "where t.token = :token ",
+                    UserAuthToken.class)
+                .setParameter("token", token)
+                .getSingleResult();
+        }
+        catch (NoResultException e)
+        {
+            return null;
+        }
     }
 }

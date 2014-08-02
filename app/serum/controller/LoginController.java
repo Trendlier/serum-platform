@@ -13,6 +13,8 @@ import scala.concurrent.duration.Duration;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import play.db.jpa.*;
+
 import serum.facebook.GraphAPI;
 
 import serum.rest.LoginRequest;
@@ -30,6 +32,7 @@ public class LoginController extends Controller {
      * INPUT: facebook login credentials
      * OUTPUT: user auth token
      */
+    @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result login()
     {
@@ -60,7 +63,12 @@ public class LoginController extends Controller {
                                 try
                                 {
                                     graphApi.pullMyFriends(userFb);
-                                    FacebookUserDao.createUpdateFacebookUserFriends(user.facebookUser, userFb);
+                                    JPA.withTransaction(new Callback0() {
+                                        public void invoke()
+                                        {
+                                            FacebookUserDao.createUpdateFacebookUserFriends(user.facebookUser, userFb);
+                                        }
+                                    });
                                 }
                                 catch (GraphAPI.AuthenticationException e)
                                 {

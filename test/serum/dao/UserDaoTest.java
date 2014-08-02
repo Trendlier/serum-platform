@@ -2,10 +2,6 @@ package serum.dao;
 
 import java.util.*;
 
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.Expr;
-import play.db.ebean.*;
-
 import static org.junit.Assert.*;
 import org.junit.*;
 import static org.mockito.Mockito.*;
@@ -24,15 +20,19 @@ public class UserDaoTest extends DaoTest
         GraphAPI.User mockUserFb = FacebookUserDaoTest.getFreshMockUserFb();
         // Create in DB
         User user = UserDao.createUpdateUserFromFacebookInfo(mockUserFb);
+        play.db.jpa.JPA.em().flush();
+        play.db.jpa.JPA.em().refresh(user);
         assertNotNull(user);
         // FacebookUser should be populated
         assertNotNull(user.facebookUser);
         assertEquals(mockUserFb.getId(), user.facebookUser.idFacebook);
+
         // Now try to create/update it again. This should just retrieve the existing one.
         // Thus, it should have the same auth token.
         User user2 = UserDao.createUpdateUserFromFacebookInfo(mockUserFb);
         assertNotNull(user2);
         assertEquals(user.userAuthToken.token, user2.userAuthToken.token);
+
         // Test the get token method returns the same token
         assertNotNull(UserDao.getUserAuthTokenByToken(user.userAuthToken.token));
     }
@@ -46,12 +46,32 @@ public class UserDaoTest extends DaoTest
         User user = UserDao.createUpdateUserFromFacebookInfo(mockUserFb);
         assertNotNull(user);
         assertNotNull(user.userAuthToken);
-        // Create a user for this user's Facebook friend too
-        User userOfFriend = UserDao.createUpdateUserFromFacebookInfo(mockUserFb.getFriends().get(0));
-        // Update friends in DB
-        FacebookUserDao.createUpdateFacebookUserFriends(user.facebookUser, mockUserFb);
-        // Look up user info by the same auth token
+        // Look up user info by the auth token
         User user2 = UserDao.getUserByAuthToken(user.userAuthToken.token);
+        assertNotNull(user2);
+        assertEquals(user.id, user2.id);
+        assertEquals(user.userAuthToken.token, user2.userAuthToken.token);
+    }
+
+    @Test
+    public void testUserGetFriends()
+    throws Exception
+    {
+        GraphAPI.User mockUserFb = FacebookUserDaoTest.getFreshMockUserFb();
+        // Create in DB
+        User user = UserDao.createUpdateUserFromFacebookInfo(mockUserFb);
+        play.db.jpa.JPA.em().flush();
+        play.db.jpa.JPA.em().refresh(user);
+        assertNotNull(user);
+        assertNotNull(user.userAuthToken);
+        assertNotNull(user.facebookUser);
+
+        // Add Facebook friends
+        User userOfFriend = UserDao.createUpdateUserFromFacebookInfo(mockUserFb.getFriends().get(0));
+        FacebookUserDao.createUpdateFacebookUserFriends(user.facebookUser, mockUserFb);
+
+        // Look up user info by the same auth token
+        User user2 = UserDao.createUpdateUserFromFacebookInfo(mockUserFb);
         assertNotNull(user2);
         assertEquals(user.id, user2.id);
         assertEquals(user.userAuthToken.token, user2.userAuthToken.token);
