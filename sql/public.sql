@@ -134,12 +134,12 @@ CREATE TABLE thread_user(
     id SERIAL PRIMARY KEY,
     thread_id INTEGER REFERENCES thread(id) NOT NULL,
     thread_user_icon_id INTEGER REFERENCES thread_user_icon(id) NOT NULL,
+    colour_rgb INTEGER[3] NOT NULL,
     created_utc TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
-    deleted_utc TIMESTAMP WITHOUT TIME ZONE,
-    UNIQUE(thread_id, thread_user_icon_id),
-    UNIQUE(thread_id, colour_rgb)
+    deleted_utc TIMESTAMP WITHOUT TIME ZONE
 );
+CREATE UNIQUE INDEX ON thread_user(thread_id, colour_rgb, thread_user_icon_id) WHERE NOT is_deleted;
 
 CREATE TABLE thread_user_invite(
     id SERIAL PRIMARY KEY,
