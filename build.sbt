@@ -8,13 +8,6 @@ version := "1.0-SNAPSHOT"
 // Java options
 //
 
-javaOptions += "-Dhttp.port=80"
-
-// TODO: Enable HTTPS, disable HTTP
-// http://www.playframework.com/documentation/2.3.x/ConfiguringHttps
-//javaOptions += "-Dhttp.port=disabled"
-//javaOptions += "-Dhttps.port=443"
-
 // CRITICAL: JDBC WILL NOT STORE TIMESTAMPS IN UTC UNLESS THIS IS HERE.
 // DO NOT REMOVE!!!
 // DO NOT REMOVE!!!
