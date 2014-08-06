@@ -20,12 +20,14 @@ public class GraphAPITest
         when(mockUserFb.getId()).thenReturn("123456");
         when(mockUserFb.getAccessToken()).thenReturn("abcdef");
         when(mockUserFb.getName()).thenReturn("Abc Def");
+        when(mockUserFb.getGender()).thenReturn("female");
         when(mockUserFb.getPicture()).thenReturn(new GraphAPI.User.Picture("http://trendlier.com/xyz.jpeg"));
         // Create mock friends
         List<GraphAPI.User> mockFriends = new ArrayList<GraphAPI.User>();
         GraphAPI.User mockFriendUserFb = mock(GraphAPI.User.class);
         when(mockFriendUserFb.getId()).thenReturn("123459");
         when(mockFriendUserFb.getName()).thenReturn("Ghi Jkl");
+        when(mockFriendUserFb.getGender()).thenReturn("male");
         when(mockFriendUserFb.getPicture()).thenReturn(new GraphAPI.User.Picture("http://trendlier.com/zyx.jpeg"));
         mockFriends.add(mockFriendUserFb);
         when(mockUserFb.getFriends()).thenReturn(mockFriends);

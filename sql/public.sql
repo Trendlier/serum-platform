@@ -77,6 +77,7 @@ CREATE TABLE facebook_user(
     id_facebook TEXT NOT NULL,
     access_token TEXT NOT NULL,
     name TEXT NOT NULL,
+    gender TEXT,
     picture_url TEXT,
     created_utc TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE,

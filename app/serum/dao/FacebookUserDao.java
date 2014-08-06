@@ -44,6 +44,10 @@ public class FacebookUserDao
         {
             facebookUser.name = userFb.getName();
         }
+        if (userFb.getGender() != null)
+        {
+            facebookUser.gender = userFb.getGender();
+        }
         if (userFb.getPicture() != null &&
             userFb.getPicture().getData() != null &&
             userFb.getPicture().getData().getUrl() != null)
@@ -59,6 +63,7 @@ public class FacebookUserDao
         FacebookUser facebookUser = new FacebookUser(userFb.getId(), userFb.getName());
         facebookUser.idFacebook = userFb.getId();
         facebookUser.name = userFb.getName();
+        facebookUser.gender = userFb.getGender();
         if (userFb.getPicture() != null &&
             userFb.getPicture().getData() != null)
         {

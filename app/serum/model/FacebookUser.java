@@ -26,6 +26,9 @@ public class FacebookUser
     @Column(name="name")
     public String name;
 
+    @Column(name="gender")
+    public String gender;
+
     @Column(name="picture_url")
     public String pictureUrl;
 

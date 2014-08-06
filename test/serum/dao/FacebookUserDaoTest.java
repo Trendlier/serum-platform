@@ -42,6 +42,7 @@ public class FacebookUserDaoTest extends DaoTest
         assertEquals(mockUserFb.getId(), facebookUser.idFacebook);
         assertEquals(mockUserFb.getAccessToken(), facebookUser.accessToken);
         assertEquals(mockUserFb.getName(), facebookUser.name);
+        assertEquals(mockUserFb.getGender(), facebookUser.gender);
         assertEquals(mockUserFb.getPicture().getData().getUrl(), facebookUser.pictureUrl);
 
         // Another call to this method should yield the exact same record
@@ -50,6 +51,7 @@ public class FacebookUserDaoTest extends DaoTest
         assertEquals(mockUserFb.getId(), facebookUser2.idFacebook);
         assertEquals(mockUserFb.getAccessToken(), facebookUser2.accessToken);
         assertEquals(mockUserFb.getName(), facebookUser2.name);
+        assertEquals(mockUserFb.getGender(), facebookUser2.gender);
         assertEquals(mockUserFb.getPicture().getData().getUrl(), facebookUser2.pictureUrl);
     }
 
@@ -61,6 +63,7 @@ public class FacebookUserDaoTest extends DaoTest
         assertEquals(mockUserFb.getId(), facebookUser.idFacebook);
         assertEquals(mockUserFb.getAccessToken(), facebookUser.accessToken);
         assertEquals(mockUserFb.getName(), facebookUser.name);
+        assertEquals(mockUserFb.getGender(), facebookUser.gender);
         assertEquals(mockUserFb.getPicture().getData().getUrl(), facebookUser.pictureUrl);
 
         // Remove the record, which actually just sets a field to true
@@ -72,6 +75,7 @@ public class FacebookUserDaoTest extends DaoTest
         assertEquals(mockUserFb.getId(), facebookUser2.idFacebook);
         assertEquals(mockUserFb.getAccessToken(), facebookUser2.accessToken);
         assertEquals(mockUserFb.getName(), facebookUser2.name);
+        assertEquals(mockUserFb.getGender(), facebookUser2.gender);
         assertEquals(mockUserFb.getPicture().getData().getUrl(), facebookUser2.pictureUrl);
     }
 
@@ -83,6 +87,7 @@ public class FacebookUserDaoTest extends DaoTest
         assertEquals(mockUserFb.getId(), facebookUser.idFacebook);
         assertEquals(mockUserFb.getAccessToken(), facebookUser.accessToken);
         assertEquals(mockUserFb.getName(), facebookUser.name);
+        assertEquals(mockUserFb.getGender(), facebookUser.gender);
         assertEquals(mockUserFb.getPicture().getData().getUrl(), facebookUser.pictureUrl);
 
         // Set properties to null.
@@ -91,14 +96,16 @@ public class FacebookUserDaoTest extends DaoTest
         when(mockUserFb2.getId()).thenReturn(originalId);
         when(mockUserFb2.getAccessToken()).thenReturn(null);
         when(mockUserFb2.getName()).thenReturn(null);
+        when(mockUserFb2.getGender()).thenReturn(null);
         when(mockUserFb2.getPicture()).thenReturn(null);
 
         // Another call to this method should yield the original data
-        FacebookUser facebookUser2 = FacebookUserDao.createUpdateFacebookUser(mockUserFb);
+        FacebookUser facebookUser2 = FacebookUserDao.createUpdateFacebookUser(mockUserFb2);
         assertEquals(facebookUser.id, facebookUser2.id);
         assertEquals(mockUserFb.getId(), facebookUser2.idFacebook);
         assertEquals(mockUserFb.getAccessToken(), facebookUser2.accessToken);
         assertEquals(mockUserFb.getName(), facebookUser2.name);
+        assertEquals(mockUserFb.getGender(), facebookUser2.gender);
         assertEquals(mockUserFb.getPicture().getData().getUrl(), facebookUser2.pictureUrl);
     }
 
@@ -117,6 +124,7 @@ public class FacebookUserDaoTest extends DaoTest
         // Assert that the data we expect about facebook friends are stored
         assertEquals(mockUserFb.getFriends().get(0).getId(), friendFacebookUsers.get(0).idFacebook);
         assertEquals(mockUserFb.getFriends().get(0).getName(), friendFacebookUsers.get(0).name);
+        assertEquals(mockUserFb.getFriends().get(0).getGender(), friendFacebookUsers.get(0).gender);
         assertEquals(
             mockUserFb.getFriends().get(0).getPicture().getData().getUrl(),
             friendFacebookUsers.get(0).pictureUrl);

@@ -7,6 +7,7 @@ public class UserResponse
 
     public String idHash;
     public String name;
+    public String gender;
     public String pictureUrl;
     public Integer threadCapacity;
 

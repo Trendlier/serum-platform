@@ -21,7 +21,8 @@ public class GraphAPI
         @com.restfb.Facebook
         protected Picture picture;
 
-        public static final String STANDARD_FIELDS = "id,name,picture,picture.width(100),picture.height(100)";
+        public static final String STANDARD_FIELDS =
+            "id,name,gender,picture,picture.width(100),picture.height(100)";
 
         // Object returned by Facebook API /user/picture
         public static class Picture

@@ -39,6 +39,7 @@ public class UsersController extends Controller
                 userResponse.idHash = user.getIdHash();
                 userResponse.threadCapacity = user.threadCapacity;
                 userResponse.name = user.facebookUser.name;
+                userResponse.gender = user.facebookUser.gender;
                 userResponse.pictureUrl = user.facebookUser.pictureUrl;
                 return ok(toJson(userResponse));
             }
@@ -77,6 +78,7 @@ public class UsersController extends Controller
                     UserFriendsResponse.Friend responseFriend = new UserFriendsResponse.Friend();
                     responseFriend.idHash = userOfFriend.getIdHash();
                     responseFriend.name = userOfFriend.facebookUser.name;
+                    responseFriend.gender = userOfFriend.facebookUser.gender;
                     responseFriend.pictureUrl = userOfFriend.facebookUser.pictureUrl;
                     userFriendsResponse.friends.add(responseFriend);
                 }
@@ -119,6 +121,7 @@ public class UsersController extends Controller
                         UserFriendsToInviteResponse.Friend responseFriend = new UserFriendsToInviteResponse.Friend();
                         responseFriend.idFacebook = facebookUserOfFriend.idFacebook;
                         responseFriend.name = facebookUserOfFriend.name;
+                        responseFriend.gender = facebookUserOfFriend.gender;
                         responseFriend.pictureUrl = facebookUserOfFriend.pictureUrl;
                         userFriendsToInviteResponse.friends.add(responseFriend);
                     }

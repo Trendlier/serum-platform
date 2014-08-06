@@ -13,6 +13,7 @@ public class UserFriendsResponse
     {
         public String idHash;
         public String name;
+        public String gender;
         public String pictureUrl;
     }
 

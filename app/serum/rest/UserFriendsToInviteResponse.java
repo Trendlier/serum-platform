@@ -13,6 +13,7 @@ public class UserFriendsToInviteResponse
     {
         public String idFacebook;
         public String name;
+        public String gender;
         public String pictureUrl;
     }
 
