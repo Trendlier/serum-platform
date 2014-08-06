@@ -3,6 +3,6 @@ package serum.controller;
 /**
  * TODO
  */
-public class UsersControllerTest
+public class UserControllerTest
 {
 }

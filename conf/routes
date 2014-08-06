@@ -4,18 +4,18 @@
 
 # Rest services
 POST    /login                      serum.controller.LoginController.login
-GET     /users/me                   serum.controller.UsersController.me(userAuthToken: String)
-GET     /users/me/friends           serum.controller.UsersController.myFriends(userAuthToken: String)
-GET     /users/me/friendsToInvite   serum.controller.UsersController.myFriendsToInvite(userAuthToken: String)
+GET     /user                       serum.controller.UserController.user(user_auth_token: String)
+GET     /friends                    serum.controller.UserController.friends(user_auth_token: String)
+GET     /friends-to-invite          serum.controller.UserController.friendsToInvite(user_auth_token: String)
 
 # Get-the-app page
-GET     /getTheApp                  serum.controller.GetTheAppController.index
+GET     /get-the-app                serum.controller.GetTheAppController.index
 
 # Chat client page
 GET     /client                     serum.controller.ChatClientController.index
 
 # Web socket handler(s)
-GET     /threadSocket               serum.controller.ThreadSocketController.socket
+GET     /thread-socket              serum.controller.ThreadSocketController.socket
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file)

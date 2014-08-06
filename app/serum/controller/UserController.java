@@ -20,7 +20,7 @@ import serum.rest.UserResponse;
 import serum.rest.UserFriendsResponse;
 import serum.rest.UserFriendsToInviteResponse;
 
-public class UsersController extends Controller
+public class UserController extends Controller
 {
     /**
      * Content-Type: application/json
@@ -28,7 +28,7 @@ public class UsersController extends Controller
      * OUTPUT: user info
      */
     @Transactional
-    public static Result me(String userAuthToken)
+    public static Result user(String userAuthToken)
     {
         try
         {
@@ -64,7 +64,7 @@ public class UsersController extends Controller
      * OUTPUT: user friend info
      */
     @Transactional
-    public static Result myFriends(String userAuthToken)
+    public static Result friends(String userAuthToken)
     {
         try
         {
@@ -105,7 +105,7 @@ public class UsersController extends Controller
      * OUTPUT: user friend info
      */
     @Transactional
-    public static Result myFriendsToInvite(String userAuthToken)
+    public static Result friendsToInvite(String userAuthToken)
     {
         try
         {
