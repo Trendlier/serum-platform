@@ -4,9 +4,9 @@ name := """serum-platform"""
 
 version := "1.0-SNAPSHOT"
 
-/**
- * Java options
- */
+//
+// Java options
+//
 
 javaOptions += "-Dhttp.port=80"
 
@@ -25,9 +25,9 @@ javaOptions += "-Dhttp.port=80"
 javaOptions += "-Duser.timezone=UTC"
 // P.S. DO. NOT. REMOVE!!!
 
-/**
- * Library dependencies
- */
+//
+// Library dependencies
+//
 
 libraryDependencies += javaJpa
 
