@@ -4,6 +4,9 @@
 
 # Rest services
 POST    /login                      serum.controller.LoginController.login
+GET     /users/me                   serum.controller.UsersController.me(userAuthToken: String)
+GET     /users/me/friends           serum.controller.UsersController.myFriends(userAuthToken: String)
+GET     /users/me/friendsToInvite   serum.controller.UsersController.myFriendsToInvite(userAuthToken: String)
 
 # Get-the-app page
 GET     /getTheApp                  serum.controller.GetTheAppController.index

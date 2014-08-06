@@ -3,6 +3,8 @@ package serum.model;
 import java.util.*;
 import javax.persistence.*;
 
+import serum.util.IdHashUtil;
+
 @Entity
 @Table(name="`user`")
 public class User
@@ -16,14 +18,14 @@ public class User
     public Long id;
 
     @Column(name="thread_capacity")
-    public int threadCapacity;
+    public Integer threadCapacity;
 
     @Column(name="created_utc")
     @Temporal(TemporalType.TIMESTAMP)
     public Calendar createdUTC;
 
     @Column(name="is_deleted")
-    public boolean isDeleted;
+    public Boolean isDeleted;
 
     @Column(name="deleted_utc")
     @Temporal(TemporalType.TIMESTAMP)
@@ -39,6 +41,7 @@ public class User
     {
         this.threadCapacity = DEFAULT_THREAD_CAPACITY;
         this.createdUTC = Calendar.getInstance(TimeZone.getTimeZone("Etc/UTC"));
+        this.isDeleted = false;
     }
 
     /**
@@ -62,5 +65,24 @@ public class User
             }
         }
         return friends;
+    }
+
+    /**
+     * @param id hash
+     * @return id
+     */
+    public static Long getIdFromHash(String idHash)
+    throws Exception
+    {
+        return IdHashUtil.decrypt(idHash);
+    }
+
+    /**
+     * @return id hash
+     */
+    public String getIdHash()
+    throws Exception
+    {
+        return IdHashUtil.encrypt(id);
     }
 }

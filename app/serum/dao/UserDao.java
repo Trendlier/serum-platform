@@ -11,10 +11,9 @@ import serum.facebook.GraphAPI;
 
 public class UserDao
 {
-    public static User createUpdateUserFromFacebookInfo(GraphAPI.User userFb)
+    public static User createUpdateUserFromFacebookInfo(FacebookUser facebookUser)
     throws Exception
     {
-        FacebookUser facebookUser = FacebookUserDao.createUpdateFacebookUser(userFb);
         if (facebookUser.user == null)
         {
             facebookUser.user = new User();

@@ -19,7 +19,8 @@ public class UserDaoTest extends DaoTest
     {
         GraphAPI.User mockUserFb = FacebookUserDaoTest.getFreshMockUserFb();
         // Create in DB
-        User user = UserDao.createUpdateUserFromFacebookInfo(mockUserFb);
+        FacebookUser facebookUser = FacebookUserDao.createUpdateFacebookUser(mockUserFb);
+        User user = UserDao.createUpdateUserFromFacebookInfo(facebookUser);
         play.db.jpa.JPA.em().flush();
         play.db.jpa.JPA.em().refresh(user);
         assertNotNull(user);
@@ -29,7 +30,8 @@ public class UserDaoTest extends DaoTest
 
         // Now try to create/update it again. This should just retrieve the existing one.
         // Thus, it should have the same auth token.
-        User user2 = UserDao.createUpdateUserFromFacebookInfo(mockUserFb);
+        facebookUser = FacebookUserDao.createUpdateFacebookUser(mockUserFb);
+        User user2 = UserDao.createUpdateUserFromFacebookInfo(facebookUser);
         assertNotNull(user2);
         assertEquals(user.userAuthToken.token, user2.userAuthToken.token);
 
@@ -43,7 +45,8 @@ public class UserDaoTest extends DaoTest
     {
         GraphAPI.User mockUserFb = FacebookUserDaoTest.getFreshMockUserFb();
         // Create in DB
-        User user = UserDao.createUpdateUserFromFacebookInfo(mockUserFb);
+        FacebookUser facebookUser = FacebookUserDao.createUpdateFacebookUser(mockUserFb);
+        User user = UserDao.createUpdateUserFromFacebookInfo(facebookUser);
         assertNotNull(user);
         assertNotNull(user.userAuthToken);
         // Look up user info by the auth token
@@ -59,7 +62,8 @@ public class UserDaoTest extends DaoTest
     {
         GraphAPI.User mockUserFb = FacebookUserDaoTest.getFreshMockUserFb();
         // Create in DB
-        User user = UserDao.createUpdateUserFromFacebookInfo(mockUserFb);
+        FacebookUser facebookUser = FacebookUserDao.createUpdateFacebookUser(mockUserFb);
+        User user = UserDao.createUpdateUserFromFacebookInfo(facebookUser);
         play.db.jpa.JPA.em().flush();
         play.db.jpa.JPA.em().refresh(user);
         assertNotNull(user);
@@ -67,11 +71,13 @@ public class UserDaoTest extends DaoTest
         assertNotNull(user.facebookUser);
 
         // Add Facebook friends
-        User userOfFriend = UserDao.createUpdateUserFromFacebookInfo(mockUserFb.getFriends().get(0));
+        FacebookUser facebookUserOfFriend = FacebookUserDao.createUpdateFacebookUser(mockUserFb.getFriends().get(0));
+        User userOfFriend = UserDao.createUpdateUserFromFacebookInfo(facebookUserOfFriend);
         FacebookUserDao.createUpdateFacebookUserFriends(user.facebookUser, mockUserFb);
 
         // Look up user info by the same auth token
-        User user2 = UserDao.createUpdateUserFromFacebookInfo(mockUserFb);
+        FacebookUser facebookUser2 = FacebookUserDao.createUpdateFacebookUser(mockUserFb);
+        User user2 = UserDao.createUpdateUserFromFacebookInfo(facebookUser2);
         assertNotNull(user2);
         assertEquals(user.id, user2.id);
         assertEquals(user.userAuthToken.token, user2.userAuthToken.token);

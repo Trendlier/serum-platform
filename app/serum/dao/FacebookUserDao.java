@@ -11,6 +11,11 @@ import serum.facebook.GraphAPI;
 
 public class FacebookUserDao
 {
+    public static FacebookUser getById(Long id)
+    {
+        return JPA.em().find(FacebookUser.class, id);
+    }
+
     public static FacebookUser createUpdateFacebookUser(GraphAPI.User userFb)
     {
         FacebookUser facebookUser;

@@ -6,9 +6,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import static org.mockito.Mockito.*;
 
-import serum.dao.DaoTest;
-
-public class FacebookUserTest extends DaoTest
+public class FacebookUserTest
 {
     @Test
     public void testGetFacebookUserFriendMap()

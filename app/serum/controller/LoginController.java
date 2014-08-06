@@ -22,6 +22,7 @@ import serum.rest.LoginResponse;
 
 import serum.model.User;
 import serum.model.UserAuthToken;
+import serum.model.FacebookUser;
 
 import serum.dao.UserDao;
 import serum.dao.FacebookUserDao;
@@ -36,9 +37,6 @@ public class LoginController extends Controller {
     @BodyParser.Of(BodyParser.Json.class)
     public static Result login()
     {
-        LoginResponse response = null;
-        UserAuthToken userAuthToken = null;
-
         try
         {
             JsonNode json = request().body().asJson();
@@ -53,8 +51,8 @@ public class LoginController extends Controller {
                         final GraphAPI graphApi = GraphAPI.getInstance(request.facebookAccessToken);
                         final GraphAPI.User userFb =
                             graphApi.checkUserInfoFromFacebook(request.facebookId, request.facebookAccessToken);
-                        final User user = UserDao.createUpdateUserFromFacebookInfo(userFb);
-                        userAuthToken = user.userAuthToken;
+                        FacebookUser facebookUser = FacebookUserDao.createUpdateFacebookUser(userFb);
+                        final User user = UserDao.createUpdateUserFromFacebookInfo(facebookUser);
 
                         // Pull Facebook friends data asynchronously
                         Akka.system().scheduler().scheduleOnce(
@@ -66,7 +64,8 @@ public class LoginController extends Controller {
                                     JPA.withTransaction(new Callback0() {
                                         public void invoke()
                                         {
-                                            FacebookUserDao.createUpdateFacebookUserFriends(user.facebookUser, userFb);
+                                            FacebookUser facebookUser = FacebookUserDao.getById(user.facebookUser.id);
+                                            FacebookUserDao.createUpdateFacebookUserFriends(facebookUser, userFb);
                                         }
                                     });
                                 }
@@ -79,40 +78,46 @@ public class LoginController extends Controller {
                             },
                             Akka.system().dispatcher()
                         );
+
+                        LoginResponse response = new LoginResponse(true, null, user.userAuthToken.token);
+                        return ok(toJson(response));
                     }
                     catch (GraphAPI.AuthenticationException e)
                     {
                         Logger.error(
                             "Error authenticating " + request.facebookId + " with " +
                             request.facebookAccessToken + " with Facebook", e);
-                        response = new LoginResponse(false, e.getMessage());
+                        LoginResponse response = new LoginResponse(false, e.getMessage());
                         return badRequest(toJson(response));
                     }
                 }
                 else
                 {
-                    response = new LoginResponse(false, "No auth token provided: expected Facebook login.");
+                    LoginResponse response =
+                        new LoginResponse(false, "No auth token provided: expected Facebook login.");
                     return badRequest(toJson(response));
                 }
             }
             else
             {
-                userAuthToken = UserDao.getUserAuthTokenByToken(request.userAuthToken);
+                UserAuthToken userAuthToken = UserDao.getUserAuthTokenByToken(request.userAuthToken);
                 if (userAuthToken == null)
                 {
-                    response = new LoginResponse(false, "Auth token does not exist. Log in again.");
+                    LoginResponse response = new LoginResponse(false, "Auth token does not exist. Log in again.");
                     return badRequest(toJson(response));
+                }
+                else
+                {
+                    LoginResponse response = new LoginResponse(true, null, userAuthToken.token);
+                    return ok(toJson(response));
                 }
             }
         }
         catch (Exception e)
         {
             Logger.error("Error logging user in", e);
-            response = new LoginResponse(false, "Unexpected error");
+            LoginResponse response = new LoginResponse(false, "Unexpected error");
             return internalServerError(toJson(response));
         }
-
-        response = new LoginResponse(true, null, userAuthToken.token);
-        return ok(toJson(response));
     }
 }

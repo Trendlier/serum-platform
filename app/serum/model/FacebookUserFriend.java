@@ -26,7 +26,7 @@ public class FacebookUserFriend
     public Calendar createdUTC;
 
     @Column(name="is_deleted")
-    public boolean isDeleted;
+    public Boolean isDeleted;
 
     @Column(name="deleted_utc")
     @Temporal(TemporalType.TIMESTAMP)
@@ -41,5 +41,6 @@ public class FacebookUserFriend
         this.facebookUser = facebookUser;
         this.facebookUserOfFriend = facebookUserOfFriend;
         this.createdUTC = Calendar.getInstance(TimeZone.getTimeZone("Etc/UTC"));
+        this.isDeleted = false;
     }
 }
