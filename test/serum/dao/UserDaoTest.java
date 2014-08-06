@@ -7,6 +7,8 @@ import org.junit.*;
 import static org.mockito.Mockito.*;
 import play.test.*;
 
+import play.db.jpa.*;
+
 import serum.model.*;
 
 import serum.facebook.GraphAPI;
@@ -21,8 +23,8 @@ public class UserDaoTest extends DaoTest
         // Create in DB
         FacebookUser facebookUser = FacebookUserDao.createUpdateFacebookUser(mockUserFb);
         User user = UserDao.createUpdateUserFromFacebookInfo(facebookUser);
-        play.db.jpa.JPA.em().flush();
-        play.db.jpa.JPA.em().refresh(user);
+        JPA.em().flush();
+        JPA.em().refresh(user);
         assertNotNull(user);
         // FacebookUser should be populated
         assertNotNull(user.facebookUser);
@@ -49,41 +51,36 @@ public class UserDaoTest extends DaoTest
         User user = UserDao.createUpdateUserFromFacebookInfo(facebookUser);
         assertNotNull(user);
         assertNotNull(user.userAuthToken);
+        assertNotNull(user.facebookUser);
         // Look up user info by the auth token
         User user2 = UserDao.getUserByAuthToken(user.userAuthToken.token);
         assertNotNull(user2);
         assertEquals(user.id, user2.id);
         assertEquals(user.userAuthToken.token, user2.userAuthToken.token);
+        assertEquals(user.facebookUser, user2.facebookUser);
     }
 
     @Test
-    public void testUserGetFriends()
+    public void testGetFriends()
     throws Exception
     {
         GraphAPI.User mockUserFb = FacebookUserDaoTest.getFreshMockUserFb();
         // Create in DB
         FacebookUser facebookUser = FacebookUserDao.createUpdateFacebookUser(mockUserFb);
         User user = UserDao.createUpdateUserFromFacebookInfo(facebookUser);
-        play.db.jpa.JPA.em().flush();
-        play.db.jpa.JPA.em().refresh(user);
         assertNotNull(user);
-        assertNotNull(user.userAuthToken);
-        assertNotNull(user.facebookUser);
 
         // Add Facebook friends
         FacebookUser facebookUserOfFriend = FacebookUserDao.createUpdateFacebookUser(mockUserFb.getFriends().get(0));
         User userOfFriend = UserDao.createUpdateUserFromFacebookInfo(facebookUserOfFriend);
         FacebookUserDao.createUpdateFacebookUserFriends(user.facebookUser, mockUserFb);
 
-        // Look up user info by the same auth token
-        FacebookUser facebookUser2 = FacebookUserDao.createUpdateFacebookUser(mockUserFb);
-        User user2 = UserDao.createUpdateUserFromFacebookInfo(facebookUser2);
-        assertNotNull(user2);
-        assertEquals(user.id, user2.id);
-        assertEquals(user.userAuthToken.token, user2.userAuthToken.token);
-        assertNotNull(user2.facebookUser);
-        assertNotNull(user2.getFriends());
-        assertTrue(user2.getFriends().size() > 0);
-        assertTrue(user2.getFriends().contains(userOfFriend));
+        // Get the friends
+        JPA.em().flush();
+        JPA.em().refresh(user);
+        List<User> friends = user.getFriends();
+        assertNotNull(friends);
+        assertTrue(friends.size() > 0);
+        assertTrue(friends.contains(userOfFriend));
     }
 }

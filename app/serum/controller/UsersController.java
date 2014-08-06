@@ -15,8 +15,8 @@ import serum.dao.UserDao;
 
 import serum.model.User;
 
-import serum.rest.RequestWithUserAuthToken;
 import serum.rest.UserResponse;
+import serum.rest.UserFriendsResponse;
 
 public class UsersController extends Controller
 {
@@ -49,7 +49,7 @@ public class UsersController extends Controller
         }
         catch (Exception e)
         {
-            Logger.error("Error pulling user info from DB: " + request().body().asJson(), e);
+            Logger.error("Error pulling user friend info from DB", e);
             UserResponse userResponse = new UserResponse(false, "Unexpected error");
             return internalServerError(toJson(userResponse));
         }
@@ -63,7 +63,36 @@ public class UsersController extends Controller
     @Transactional
     public static Result myFriends(String userAuthToken)
     {
-        return null;
+        try
+        {
+            User user = UserDao.getUserByAuthToken(userAuthToken);
+            if (user != null)
+            {
+                UserFriendsResponse userFriendsResponse = new UserFriendsResponse(true, null);
+                userFriendsResponse.friends = new ArrayList<UserFriendsResponse.Friend>();
+                for (User userOfFriend: user.getFriends())
+                {
+                    UserFriendsResponse.Friend responseFriend = new UserFriendsResponse.Friend();
+                    responseFriend.idHash = userOfFriend.getIdHash();
+                    responseFriend.name = userOfFriend.facebookUser.name;
+                    responseFriend.pictureUrl = userOfFriend.facebookUser.pictureUrl;
+                    userFriendsResponse.friends.add(responseFriend);
+                }
+                return ok(toJson(userFriendsResponse));
+            }
+            else
+            {
+                UserFriendsResponse userFriendsResponse =
+                    new UserFriendsResponse(false, "Could not find auth token and/or user. Try logging in again.");
+                return badRequest(toJson(userFriendsResponse));
+            }
+        }
+        catch (Exception e)
+        {
+            Logger.error("Error pulling user friend info from DB", e);
+            UserFriendsResponse userFriendsResponse = new UserFriendsResponse(false, "Unexpected error");
+            return internalServerError(toJson(userFriendsResponse));
+        }
     }
 
     /**
