@@ -55,6 +55,27 @@ public class FacebookUser
         this.isDeleted = false;
     }
 
+    /**
+     * Basically a view for friends linked to this Facebook user
+     */
+    public List<FacebookUser> getFriendFacebookUsers()
+    {
+        List<FacebookUser> friendUsers = new ArrayList<FacebookUser>();
+        if (friendUsers != null)
+        {
+            for (FacebookUserFriend facebookUserFriend: friends)
+            {
+                if (!facebookUserFriend.isDeleted &&
+                    !facebookUserFriend.facebookUserOfFriend.isDeleted
+                )
+                {
+                    friendUsers.add(facebookUserFriend.facebookUserOfFriend);
+                }
+            }
+        }
+        return friendUsers;
+    }
+
     public Map<String, FacebookUserFriend> getFacebookUserFriendMap()
     {
         Map<String, FacebookUserFriend> facebookUserFriendMap = new HashMap<String, FacebookUserFriend>();

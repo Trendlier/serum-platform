@@ -14,9 +14,11 @@ import play.db.jpa.*;
 import serum.dao.UserDao;
 
 import serum.model.User;
+import serum.model.FacebookUser;
 
 import serum.rest.UserResponse;
 import serum.rest.UserFriendsResponse;
+import serum.rest.UserFriendsToInviteResponse;
 
 public class UsersController extends Controller
 {
@@ -103,6 +105,40 @@ public class UsersController extends Controller
     @Transactional
     public static Result myFriendsToInvite(String userAuthToken)
     {
-        return null;
+        try
+        {
+            User user = UserDao.getUserByAuthToken(userAuthToken);
+            if (user != null)
+            {
+                UserFriendsToInviteResponse userFriendsToInviteResponse = new UserFriendsToInviteResponse(true, null);
+                userFriendsToInviteResponse.friends = new ArrayList<UserFriendsToInviteResponse.Friend>();
+                for (FacebookUser facebookUserOfFriend: user.facebookUser.getFriendFacebookUsers())
+                {
+                    if (facebookUserOfFriend.user == null)
+                    {
+                        UserFriendsToInviteResponse.Friend responseFriend = new UserFriendsToInviteResponse.Friend();
+                        responseFriend.idFacebook = facebookUserOfFriend.idFacebook;
+                        responseFriend.name = facebookUserOfFriend.name;
+                        responseFriend.pictureUrl = facebookUserOfFriend.pictureUrl;
+                        userFriendsToInviteResponse.friends.add(responseFriend);
+                    }
+                }
+                return ok(toJson(userFriendsToInviteResponse));
+            }
+            else
+            {
+                UserFriendsToInviteResponse userFriendsToInviteResponse =
+                    new UserFriendsToInviteResponse(false,
+                        "Could not find auth token and/or user. Try logging in again.");
+                return badRequest(toJson(userFriendsToInviteResponse));
+            }
+        }
+        catch (Exception e)
+        {
+            Logger.error("Error pulling user FB invite friend info from DB", e);
+            UserFriendsToInviteResponse userFriendsToInviteResponse =
+                new UserFriendsToInviteResponse(false, "Unexpected error");
+            return internalServerError(toJson(userFriendsToInviteResponse));
+        }
     }
 }

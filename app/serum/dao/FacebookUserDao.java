@@ -126,19 +126,6 @@ public class FacebookUserDao
         }
     }
 
-    public static List<FacebookUser> getFriendsByIdFacebook(String idFacebook)
-    {
-        return JPA.em().createQuery(
-                "select f.facebookUserOfFriend " +
-                "from FacebookUserFriend f " +
-                "where f.facebookUser.idFacebook = :idFacebook " +
-                "and f.isDeleted = false " +
-                "and f.facebookUserOfFriend.isDeleted = false ",
-                FacebookUser.class)
-            .setParameter("idFacebook", idFacebook)
-            .getResultList();
-    }
-
     public static void removeFacebookUserById(String idFacebook)
     {
         JPA.em().createQuery(
