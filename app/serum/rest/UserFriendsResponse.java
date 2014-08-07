@@ -2,11 +2,8 @@ package serum.rest;
 
 import java.util.*;
 
-public class UserFriendsResponse
+public class UserFriendsResponse extends Response
 {
-    public Boolean success;
-    public String message;
-
     public List<Friend> friends;
 
     public static class Friend
@@ -19,7 +16,6 @@ public class UserFriendsResponse
 
     public UserFriendsResponse(Boolean success, String message)
     {
-        this.success = success;
-        this.message = message;
+        super(success, message);
     }
 }

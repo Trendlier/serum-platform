@@ -1,10 +1,7 @@
 package serum.rest;
 
-public class UserResponse
+public class UserResponse extends Response
 {
-    public Boolean success;
-    public String message;
-
     public String idHash;
     public String name;
     public String gender;
@@ -13,7 +10,6 @@ public class UserResponse
 
     public UserResponse(Boolean success, String message)
     {
-        this.success = success;
-        this.message = message;
+        super(success, message);
     }
 }
