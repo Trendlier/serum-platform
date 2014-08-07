@@ -7,6 +7,12 @@ POST    /login                      serum.controller.LoginController.login
 GET     /user                       serum.controller.UserController.user(user_auth_token: String)
 GET     /friends                    serum.controller.UserController.friends(user_auth_token: String)
 GET     /friends-to-invite          serum.controller.UserController.friendsToInvite(user_auth_token: String)
+POST    /thread                     serum.controller.ThreadController.createThread(user_auth_token: String)
+POST    /question-image             serum.controller.ThreadController.addQuestionImage(thread: String, user_auth_token: String)
+GET     /thread                     serum.controller.ThreadController.getThread(thread: String, user_auth_token: String)
+GET     /threads                    serum.controller.ThreadController.getThreads(user_auth_token: String)
+DELETE  /thread                     serum.controller.ThreadController.removeThread(thread: String, user_auth_token: String)
+DELETE  /thread-user                serum.controller.ThreadController.removeThreadUser(thread: String, thread_user: String, user_auth_token: String)
 
 # Get-the-app page
 GET     /get-the-app                serum.controller.GetTheAppController.index
