@@ -52,7 +52,7 @@ public class UserController extends Controller
         }
         catch (Exception e)
         {
-            Logger.error("Error pulling user friend info from DB", e);
+            Logger.error("Error pulling user info from DB", e);
             UserResponse userResponse = new UserResponse(false, "Unexpected error");
             return internalServerError(toJson(userResponse));
         }
