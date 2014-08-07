@@ -185,7 +185,7 @@ public class ThreadController extends Controller
      * OUTPUT: 
      */
     @Transactional
-    public static Result removeThreadUser(String threadIdHash, String userIdHash, String userAuthToken)
+    public static Result removeThreadUser(String threadIdHash, String threadUserIdHash, String userAuthToken)
     {
         try
         {
