@@ -8,7 +8,7 @@ public class UserFriendsResponse extends Response
 
     public static class Friend
     {
-        public String idHash;
+        public String id;
         public String name;
         public String gender;
         public String pictureUrl;

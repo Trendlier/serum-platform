@@ -18,9 +18,11 @@ import serum.model.User;
 import serum.model.Thread;
 import serum.model.ThreadUser;
 
+import serum.rest.CreateThreadRequest;
+
 import serum.rest.Response;
 import serum.rest.CreateThreadResponse;
-import serum.rest.AddQuestionImageResponse;
+import serum.rest.AddThreadImageResponse;
 import serum.rest.ThreadResponse;
 import serum.rest.ThreadsResponse;
 
@@ -37,6 +39,8 @@ public class ThreadController extends Controller
     {
         try
         {
+            JsonNode json = request().body().asJson();
+            CreateThreadRequest request = fromJson(json, CreateThreadRequest.class);
             User user = UserDao.getUserByAuthToken(userAuthToken);
             if (user != null)
             {
@@ -63,7 +67,7 @@ public class ThreadController extends Controller
      * OUTPUT: thread info
      */
     @Transactional
-    public static Result addQuestionImage(String threadIdHash, String userAuthToken)
+    public static Result addThreadImage(String threadIdHash, String userAuthToken)
     {
         try
         {
@@ -74,8 +78,8 @@ public class ThreadController extends Controller
             }
             else
             {
-                AddQuestionImageResponse response =
-                    new AddQuestionImageResponse(
+                AddThreadImageResponse response =
+                    new AddThreadImageResponse(
                         false,
                         "Could not find auth token and/or user. Try logging in again.");
                 return badRequest(toJson(response));
@@ -84,7 +88,7 @@ public class ThreadController extends Controller
         catch (Exception e)
         {
             Logger.error("Error adding image to thread question", e);
-            AddQuestionImageResponse response = new AddQuestionImageResponse(false, "Unexpected error");
+            AddThreadImageResponse response = new AddThreadImageResponse(false, "Unexpected error");
             return internalServerError(toJson(response));
         }
     }

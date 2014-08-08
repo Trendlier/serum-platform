@@ -2,7 +2,7 @@ package serum.rest;
 
 public class UserResponse extends Response
 {
-    public String idHash;
+    public String id;
     public String name;
     public String gender;
     public String pictureUrl;
