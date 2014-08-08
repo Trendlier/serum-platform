@@ -9,17 +9,9 @@ CREATE TABLE "resource"(
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE
 );
 
-CREATE TABLE user_icon(
-    id SERIAL PRIMARY KEY,
-    resource_id INTEGER REFERENCES "resource"(id) NOT NULL,
-    created_utc TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    is_deleted BOOLEAN NOT NULL DEFAULT FALSE
-);
-
 CREATE TABLE "user"(
     id SERIAL PRIMARY KEY,
     thread_capacity INTEGER NOT NULL,
-    user_icon_id INTEGER REFERENCES user_icon(id),
     created_utc TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
     deleted_utc TIMESTAMP WITHOUT TIME ZONE
@@ -120,23 +112,22 @@ WHERE NOT d.is_deleted;
 
 CREATE TABLE thread(
     id SERIAL PRIMARY KEY,
+    title TEXT NOT NULL,
+    image_url TEXT,
+    device_id INTEGER REFERENCES device(id),
     last_updated_utc TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     created_utc TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
     deleted_utc TIMESTAMP WITHOUT TIME ZONE
 );
 
-CREATE TABLE thread_user_icon(
-    id SERIAL PRIMARY KEY,
-    resource_id INTEGER REFERENCES "resource"(id) NOT NULL
-);
-
 CREATE TABLE thread_user(
     id SERIAL PRIMARY KEY,
     thread_id INTEGER REFERENCES thread(id) NOT NULL,
     user_id INTEGER REFERENCES user(id) NOT NULL,
-    thread_user_icon_id INTEGER REFERENCES thread_user_icon(id) NOT NULL,
+    icon_url TEXT NOT NULL,
     colour_rgb INTEGER[3] NOT NULL,
+    is_asker BOOLEAN NOT NULL,
     created_utc TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
     deleted_utc TIMESTAMP WITHOUT TIME ZONE
@@ -144,28 +135,11 @@ CREATE TABLE thread_user(
 CREATE UNIQUE INDEX ON thread_user(thread_id, colour_rgb, thread_user_icon_id) WHERE NOT is_deleted;
 CREATE UNIQUE INDEX ON thread_user(thread_id, user_id) WHERE NOT is_deleted;
 
-CREATE TABLE thread_user_invite(
-    id SERIAL PRIMARY KEY,
-    thread_user_id INTEGER REFERENCES thread_user(id) NOT NULL,
-    user_id_invited INTEGER REFERENCES "user"(id) NOT NULL,
-    created_utc TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    is_deleted BOOLEAN NOT NULL DEFAULT FALSE
-);
-
-CREATE TABLE thread_question(
-    id SERIAL PRIMARY KEY,
-    thread_id INTEGER REFERENCES thread(id) UNIQUE NOT NULL,
-    "text" TEXT NOT NULL,
-    thread_user_id INTEGER REFERENCES thread_user(id) NOT NULL,
-    device_id INTEGER REFERENCES device(id),
-    created_utc TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    is_deleted BOOLEAN NOT NULL DEFAULT FALSE
-);
-
 CREATE TABLE thread_response(
     id SERIAL PRIMARY KEY,
     thread_user_id INTEGER REFERENCES thread_user(id) NOT NULL,
     "text" TEXT NOT NULL,
+    image_url TEXT,
     device_id INTEGER REFERENCES device(id),
     created_utc TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
@@ -176,16 +150,4 @@ CREATE TABLE thread_user_last_seen_response(
     thread_user_id INTEGER REFERENCES thread_user(id) NOT NULL,
     thread_response_id INTEGER REFERENCES thread_response(id) NOT NULL,
     seen_utc TIMESTAMP WITHOUT TIME ZONE NOT NULL
-);
-
-CREATE TABLE thread_question_resource(
-    id SERIAL PRIMARY KEY,
-    thread_question_id INTEGER REFERENCES thread_question(id) NOT NULL,
-    resource_id INTEGER REFERENCES "resource"(id) NOT NULL
-);
-
-CREATE TABLE thread_response_resource(
-    id SERIAL PRIMARY KEY,
-    thread_response_id INTEGER REFERENCES thread_response(id) NOT NULL,
-    resource_id INTEGER REFERENCES "resource"(id) NOT NULL
 );
