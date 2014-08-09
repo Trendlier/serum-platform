@@ -126,13 +126,16 @@ CREATE TABLE thread_user(
     thread_id INTEGER REFERENCES thread(id) NOT NULL,
     user_id INTEGER REFERENCES user(id) NOT NULL,
     icon_url TEXT NOT NULL,
-    colour_rgb INTEGER[3] NOT NULL,
+    colour_red INTEGER NOT NULL,
+    colour_green INTEGER NOT NULL,
+    colour_blue INTEGER NOT NULL,
     is_asker BOOLEAN NOT NULL,
     created_utc TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
     deleted_utc TIMESTAMP WITHOUT TIME ZONE
 );
-CREATE UNIQUE INDEX ON thread_user(thread_id, colour_rgb, thread_user_icon_id) WHERE NOT is_deleted;
+CREATE UNIQUE INDEX ON thread_user(thread_id, colour_red, colour_green, colour_blue, icon_url)
+WHERE NOT is_deleted;
 CREATE UNIQUE INDEX ON thread_user(thread_id, user_id) WHERE NOT is_deleted;
 
 CREATE TABLE thread_response(
