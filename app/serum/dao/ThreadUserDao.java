@@ -9,4 +9,7 @@ import serum.model.*;
 
 public class ThreadUserDao
 {
+    public static void createThreadUsers(ThreadModel thread, Collection<User> invitedUsers)
+    {
+    }
 }

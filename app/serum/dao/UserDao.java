@@ -61,4 +61,26 @@ public class UserDao
             return null;
         }
     }
+
+    public static List<User> getUsersByIdHash(List<String> idHashList)
+    throws Exception
+    {
+        List<Long> ids = new ArrayList<Long>();
+        for (String idHash: idHashList)
+        {
+            ids.add(User.getIdFromHash(idHash));
+        }
+        return getUsersByIds(ids);
+    }
+
+    public static List<User> getUsersByIds(List<Long> ids)
+    {
+        return
+            JPA.em().createQuery(
+                "select u from User u " +
+                "where u.id in :ids ",
+                User.class)
+            .setParameter("ids", ids)
+            .getResultList();
+    }
 }

@@ -13,9 +13,10 @@ import play.db.jpa.*;
 
 import serum.dao.UserDao;
 import serum.dao.ThreadDao;
+import serum.dao.ThreadUserDao;
 
 import serum.model.User;
-import serum.model.Thread;
+import serum.model.ThreadModel;
 import serum.model.ThreadUser;
 
 import serum.rest.CreateThreadRequest;
@@ -35,16 +36,20 @@ public class ThreadController extends Controller
      */
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
-    public static Result createThread(String userAuthToken)
+    public static Result createThread()
     {
         try
         {
             JsonNode json = request().body().asJson();
             CreateThreadRequest request = fromJson(json, CreateThreadRequest.class);
-            User user = UserDao.getUserByAuthToken(userAuthToken);
+            User user = UserDao.getUserByAuthToken(request.userAuthToken);
             if (user != null)
             {
-                return ok("TODO");
+                ThreadModel thread = ThreadDao.createThread(user, request.title);
+                List<User> invitedUsers = UserDao.getUsersByIdHash(request.invitedUserIds);
+                ThreadUserDao.createThreadUsers(thread, invitedUsers);
+                CreateThreadResponse response = new CreateThreadResponse(true, null, thread.getIdHash());
+                return ok(toJson(response));
             }
             else
             {

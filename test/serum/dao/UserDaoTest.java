@@ -83,4 +83,22 @@ public class UserDaoTest extends DaoTest
         assertTrue(friends.size() > 0);
         assertTrue(friends.contains(userOfFriend));
     }
+
+    @Test
+    public void testGetUsersByIds()
+    throws Exception
+    {
+        // First create user and friend
+        GraphAPI.User mockUserFb = FacebookUserDaoTest.getFreshMockUserFb();
+        FacebookUser facebookUser = FacebookUserDao.createUpdateFacebookUser(mockUserFb);
+        User user = UserDao.createUpdateUserFromFacebookInfo(facebookUser);
+        FacebookUser facebookUserOfFriend = FacebookUserDao.createUpdateFacebookUser(mockUserFb.getFriends().get(0));
+        User userOfFriend = UserDao.createUpdateUserFromFacebookInfo(facebookUserOfFriend);
+
+        // Now pull them using the method
+        List<Long> ids = Arrays.asList(new Long[] {user.id, userOfFriend.id});
+        List<User> users = UserDao.getUsersByIds(ids);
+        assertTrue(users.contains(user));
+        assertTrue(users.contains(userOfFriend));
+    }
 }

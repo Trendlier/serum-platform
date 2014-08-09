@@ -7,7 +7,7 @@ POST    /login                      serum.controller.LoginController.login
 GET     /user                       serum.controller.UserController.user(user_auth_token: String)
 GET     /friends                    serum.controller.UserController.friends(user_auth_token: String)
 GET     /friends-to-invite          serum.controller.UserController.friendsToInvite(user_auth_token: String)
-POST    /thread                     serum.controller.ThreadController.createThread(user_auth_token: String)
+POST    /thread                     serum.controller.ThreadController.createThread()
 POST    /thread-image               serum.controller.ThreadController.addThreadImage(thread: String, user_auth_token: String)
 GET     /thread                     serum.controller.ThreadController.getThread(thread: String, user_auth_token: String)
 GET     /threads                    serum.controller.ThreadController.getThreads(user_auth_token: String)

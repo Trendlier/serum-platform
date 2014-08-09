@@ -37,6 +37,9 @@ public class User
     @OneToOne(mappedBy="user")
     public UserAuthToken userAuthToken;
 
+    @OneToMany(mappedBy="user")
+    public List<ThreadUser> threadUsers;
+
     public User()
     {
         this.threadCapacity = DEFAULT_THREAD_CAPACITY;

@@ -6,37 +6,24 @@ import javax.persistence.*;
 import serum.util.IdHashUtil;
 
 @Entity
-@Table(name="thread_user")
-public class ThreadUser
+@Table(name="thread")
+public class ThreadModel
 {
     @Id
-    @SequenceGenerator(name="threadUserSeq", sequenceName="thread_user_id_seq")
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="threadUserSeq")
+    @SequenceGenerator(name="threadSeq", sequenceName="thread_id_seq")
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="threadSeq")
     @Column(name="id")
     public Long id;
 
-    @ManyToOne
-    @JoinColumn(name="user_id")
-    public User user;
+    @Column(name="title")
+    public String title;
 
-    @ManyToOne
-    @JoinColumn(name="thread_id")
-    public ThreadModel thread;
+    @Column(name="image_url")
+    public String imageUrl;
 
-    @Column(name="icon_url")
-    public String iconUrl;
-
-    @Column(name="colour_red")
-    public Integer colourRed;
-
-    @Column(name="colour_green")
-    public Integer colourGreen;
-
-    @Column(name="colour_blue")
-    public Integer colourBlue;
-
-    @Column(name="is_asker")
-    public Boolean isAsker;
+    @Column(name="last_updated_utc")
+    @Temporal(TemporalType.TIMESTAMP)
+    public Calendar lastUpdatedUTC;
 
     @Column(name="created_utc")
     @Temporal(TemporalType.TIMESTAMP)
@@ -48,6 +35,9 @@ public class ThreadUser
     @Column(name="deleted_utc")
     @Temporal(TemporalType.TIMESTAMP)
     public Calendar deletedUTC;
+
+    @OneToMany(mappedBy="thread")
+    public List<ThreadUser> threadUsers;
 
     /**
      * @param id hash
@@ -66,5 +56,10 @@ public class ThreadUser
     throws Exception
     {
         return IdHashUtil.encrypt(id);
+    }
+
+    public User getUser()
+    {
+        return null;
     }
 }

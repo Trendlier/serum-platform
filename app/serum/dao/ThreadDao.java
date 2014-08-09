@@ -9,4 +9,8 @@ import serum.model.*;
 
 public class ThreadDao
 {
+    public static ThreadModel createThread(User user, String title)
+    {
+        return null;
+    }
 }
