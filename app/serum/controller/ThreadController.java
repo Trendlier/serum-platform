@@ -111,7 +111,24 @@ public class ThreadController extends Controller
             User user = UserDao.getUserByAuthToken(userAuthToken);
             if (user != null)
             {
-                return ok("TODO");
+                ThreadModel thread = ThreadDao.getThreadById(ThreadModel.getIdFromHash(threadIdHash));
+                User userOwner = thread.getUserOwner();
+                List<User> invitedUsers = thread.getInvitedUsers();
+                ThreadResponse response = new ThreadResponse(true, null);
+                response.id = thread.getIdHash();
+                response.numberOfInvitedUsers = invitedUsers.size();
+                response.title = thread.title;
+                response.imageUrl = thread.imageUrl;
+                response.createdTimestamp = thread.createdUTC.getTimeInMillis()/1000;
+                response.userOwner = new ThreadResponse.User();
+                response.userOwner.id = userOwner.getIdHash();
+                if (userOwner.facebookUser != null)
+                {
+                    response.userOwner.name = userOwner.facebookUser.name;
+                    response.userOwner.pictureUrl = userOwner.facebookUser.pictureUrl;
+                }
+                // TODO: add responses
+                return ok(toJson(response));
             }
             else
             {

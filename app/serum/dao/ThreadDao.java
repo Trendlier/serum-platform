@@ -15,4 +15,9 @@ public class ThreadDao
         JPA.em().persist(thread);
         return thread;
     }
+
+    public static ThreadModel getThreadById(Long id)
+    {
+        return JPA.em().find(ThreadModel.class, id);
+    }
 }

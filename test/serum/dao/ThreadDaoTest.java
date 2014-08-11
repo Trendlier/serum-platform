@@ -41,9 +41,11 @@ public class ThreadDaoTest extends DaoTest
         String title = "Should entities and rest objects use getters and setters, or just public fields?";
         ThreadModel thread = ThreadDao.createThread(title);
         ThreadUserDao.createThreadUsers(thread, userOwner, invitedUsers);
-
         JPA.em().flush();
         JPA.em().refresh(thread);
+
+        thread = ThreadDao.getThreadById(thread.id);
+
         assertNotNull(thread);
         assertEquals(title, thread.title);
         assertEquals(userOwner, thread.getUserOwner());
