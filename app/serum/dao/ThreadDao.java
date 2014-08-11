@@ -9,8 +9,10 @@ import serum.model.*;
 
 public class ThreadDao
 {
-    public static ThreadModel createThread(User user, String title)
+    public static ThreadModel createThread(String title)
     {
-        return null;
+        ThreadModel thread = new ThreadModel(title);
+        JPA.em().persist(thread);
+        return thread;
     }
 }

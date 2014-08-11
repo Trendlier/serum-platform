@@ -23,12 +23,12 @@ public class ThreadDaoTest extends DaoTest
         return UserDao.createUpdateUserFromFacebookInfo(facebookUser);
     }
 
-    public static List<User> getMockFriends(GraphAPI.User mockUserFb)
+    public static List<User> getMockInvitedUsers(GraphAPI.User mockUserFb)
     throws Exception
     {
         FacebookUser facebookUserOfFriend = FacebookUserDao.createUpdateFacebookUser(mockUserFb.getFriends().get(0));
-        User userOfFriend = UserDao.createUpdateUserFromFacebookInfo(facebookUserOfFriend);
-        return Arrays.asList(new User[] {userOfFriend});
+        User invitedUser = UserDao.createUpdateUserFromFacebookInfo(facebookUserOfFriend);
+        return Arrays.asList(new User[] {invitedUser});
     }
 
     @Test
@@ -36,24 +36,20 @@ public class ThreadDaoTest extends DaoTest
     throws Exception
     {
         GraphAPI.User mockUserFb = FacebookUserDaoTest.getFreshMockUserFb();
-        User user = getMockUser(mockUserFb);
-        List<User> friends = getMockFriends(mockUserFb);
+        User userOwner = getMockUser(mockUserFb);
+        List<User> invitedUsers = getMockInvitedUsers(mockUserFb);
         String title = "Should entities and rest objects use getters and setters, or just public fields?";
-        ThreadModel thread = ThreadDao.createThread(user, title);
-        ThreadUserDao.createThreadUsers(thread, friends);
+        ThreadModel thread = ThreadDao.createThread(title);
+        ThreadUserDao.createThreadUsers(thread, userOwner, invitedUsers);
 
         JPA.em().flush();
         JPA.em().refresh(thread);
         assertNotNull(thread);
         assertEquals(title, thread.title);
-        assertEquals(user, thread.getUser());
-        assertEquals(friends.size() + 1, thread.threadUsers.size());
+        assertEquals(userOwner, thread.getUserOwner());
+        assertEquals(invitedUsers.size() + 1, thread.threadUsers.size());
 
-        List<User> usersInThread = new ArrayList<User>();
-        for (ThreadUser threadUser: thread.threadUsers)
-        {
-            usersInThread.add(threadUser.user);
-        }
-        assertTrue(usersInThread.containsAll(friends));
+        List<User> actualInvitedUsers = thread.getInvitedUsers();
+        assertEquals(invitedUsers, actualInvitedUsers);
     }
 }

@@ -36,7 +36,7 @@ public class ThreadUser
     public Integer colourBlue;
 
     @Column(name="is_asker")
-    public Boolean isAsker;
+    public Boolean isOwner;
 
     @Column(name="created_utc")
     @Temporal(TemporalType.TIMESTAMP)
@@ -48,6 +48,19 @@ public class ThreadUser
     @Column(name="deleted_utc")
     @Temporal(TemporalType.TIMESTAMP)
     public Calendar deletedUTC;
+
+    public ThreadUser()
+    {
+    }
+
+    public ThreadUser(ThreadModel thread, User user, boolean isOwner)
+    {
+        this.thread = thread;
+        this.user = user;
+        this.isOwner = isOwner;
+        this.createdUTC = Calendar.getInstance(TimeZone.getTimeZone("Etc/UTC"));
+        this.isDeleted = false;
+    }
 
     /**
      * @param id hash

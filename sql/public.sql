@@ -129,7 +129,7 @@ CREATE TABLE thread_user(
     colour_red INTEGER NOT NULL,
     colour_green INTEGER NOT NULL,
     colour_blue INTEGER NOT NULL,
-    is_asker BOOLEAN NOT NULL,
+    is_owner BOOLEAN NOT NULL,
     created_utc TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
     deleted_utc TIMESTAMP WITHOUT TIME ZONE

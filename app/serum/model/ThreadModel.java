@@ -5,6 +5,9 @@ import javax.persistence.*;
 
 import serum.util.IdHashUtil;
 
+/**
+ * Cannot call this class "Thread" because it is ambiguous with java.lang.Thread
+ */
 @Entity
 @Table(name="thread")
 public class ThreadModel
@@ -39,6 +42,18 @@ public class ThreadModel
     @OneToMany(mappedBy="thread")
     public List<ThreadUser> threadUsers;
 
+    public ThreadModel()
+    {
+    }
+
+    public ThreadModel(String title)
+    {
+        this.title = title;
+        this.createdUTC = Calendar.getInstance(TimeZone.getTimeZone("Etc/UTC"));
+        this.lastUpdatedUTC = this.createdUTC;
+        this.isDeleted = false;
+    }
+
     /**
      * @param id hash
      * @return id
@@ -58,8 +73,28 @@ public class ThreadModel
         return IdHashUtil.encrypt(id);
     }
 
-    public User getUser()
+    public User getUserOwner()
     {
+        for (ThreadUser threadUser: threadUsers)
+        {
+            if (threadUser.isOwner)
+            {
+                return threadUser.user;
+            }
+        }
         return null;
+    }
+
+    public List<User> getInvitedUsers()
+    {
+        List<User> invitedUsers = new ArrayList<User>();
+        for (ThreadUser threadUser: threadUsers)
+        {
+            if (!threadUser.isOwner)
+            {
+                invitedUsers.add(threadUser.user);
+            }
+        }
+        return invitedUsers;
     }
 }

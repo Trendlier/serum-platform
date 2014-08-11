@@ -45,9 +45,9 @@ public class ThreadController extends Controller
             User user = UserDao.getUserByAuthToken(request.userAuthToken);
             if (user != null)
             {
-                ThreadModel thread = ThreadDao.createThread(user, request.title);
+                ThreadModel thread = ThreadDao.createThread(request.title);
                 List<User> invitedUsers = UserDao.getUsersByIdHash(request.invitedUserIds);
-                ThreadUserDao.createThreadUsers(thread, invitedUsers);
+                ThreadUserDao.createThreadUsers(thread, user, invitedUsers);
                 CreateThreadResponse response = new CreateThreadResponse(true, null, thread.getIdHash());
                 return ok(toJson(response));
             }
