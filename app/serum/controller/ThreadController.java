@@ -27,6 +27,8 @@ import serum.rest.AddThreadImageResponse;
 import serum.rest.ThreadResponse;
 import serum.rest.ThreadsResponse;
 
+import serum.validation.ThreadActionValidator;
+
 public class ThreadController extends Controller
 {
     /**
@@ -112,23 +114,32 @@ public class ThreadController extends Controller
             if (user != null)
             {
                 ThreadModel thread = ThreadDao.getThreadById(ThreadModel.getIdFromHash(threadIdHash));
-                User userOwner = thread.getUserOwner();
-                List<User> invitedUsers = thread.getInvitedUsers();
-                ThreadResponse response = new ThreadResponse(true, null);
-                response.id = thread.getIdHash();
-                response.numberOfInvitedUsers = invitedUsers.size();
-                response.title = thread.title;
-                response.imageUrl = thread.imageUrl;
-                response.createdTimestamp = thread.createdUTC.getTimeInMillis()/1000;
-                response.userOwner = new ThreadResponse.User();
-                response.userOwner.id = userOwner.getIdHash();
-                if (userOwner.facebookUser != null)
+                if (ThreadActionValidator.hasPermissionToSee(thread, user))
                 {
-                    response.userOwner.name = userOwner.facebookUser.name;
-                    response.userOwner.pictureUrl = userOwner.facebookUser.pictureUrl;
+                    User userOwner = thread.getUserOwner();
+                    List<User> invitedUsers = thread.getInvitedUsers();
+                    ThreadResponse response = new ThreadResponse(true, null);
+                    response.id = thread.getIdHash();
+                    response.numberOfInvitedUsers = invitedUsers.size();
+                    response.title = thread.title;
+                    response.imageUrl = thread.imageUrl;
+                    response.createdTimestamp = thread.createdUTC.getTimeInMillis()/1000;
+                    response.userOwner = new ThreadResponse.User();
+                    response.userOwner.id = userOwner.getIdHash();
+                    if (userOwner.facebookUser != null)
+                    {
+                        response.userOwner.name = userOwner.facebookUser.name;
+                        response.userOwner.pictureUrl = userOwner.facebookUser.pictureUrl;
+                    }
+                    // TODO: add responses/messages
+                    return ok(toJson(response));
                 }
-                // TODO: add responses
-                return ok(toJson(response));
+                else
+                {
+                    ThreadResponse response =
+                        new ThreadResponse(true, "You don't have permission to see this thread.");
+                    return badRequest(toJson(response));
+                }
             }
             else
             {
@@ -188,7 +199,17 @@ public class ThreadController extends Controller
             User user = UserDao.getUserByAuthToken(userAuthToken);
             if (user != null)
             {
-                return ok("TODO");
+                ThreadModel thread = ThreadDao.getThreadById(ThreadModel.getIdFromHash(threadIdHash));
+                if (ThreadActionValidator.hasPermissionToRemove(thread, user))
+                {
+                    ThreadDao.removeThread(thread);
+                    return ok(toJson(new Response(true, null)));
+                }
+                else
+                {
+                    Response response = new Response(false, "You don't have permission to remove this thread.");
+                    return badRequest(toJson(response));
+                }
             }
             else
             {

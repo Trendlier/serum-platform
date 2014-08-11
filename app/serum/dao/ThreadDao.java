@@ -20,4 +20,9 @@ public class ThreadDao
     {
         return JPA.em().find(ThreadModel.class, id);
     }
+
+    public static void removeThread(ThreadModel thread)
+    {
+        thread.isDeleted = true;
+    }
 }

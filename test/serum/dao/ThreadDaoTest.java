@@ -32,7 +32,7 @@ public class ThreadDaoTest extends DaoTest
     }
 
     @Test
-    public void testCreateGetThreadAndThreadUsers()
+    public void testCreateGetRemoveThreadAndThreadUsers()
     throws Exception
     {
         GraphAPI.User mockUserFb = FacebookUserDaoTest.getFreshMockUserFb();
@@ -53,5 +53,8 @@ public class ThreadDaoTest extends DaoTest
 
         List<User> actualInvitedUsers = thread.getInvitedUsers();
         assertEquals(invitedUsers, actualInvitedUsers);
+
+        ThreadDao.removeThread(thread);
+        assertTrue(thread.isDeleted);
     }
 }
