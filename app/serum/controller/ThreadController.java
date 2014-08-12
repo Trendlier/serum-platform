@@ -19,6 +19,7 @@ import serum.dao.ThreadMessageDao;
 import serum.model.User;
 import serum.model.ThreadModel;
 import serum.model.ThreadUser;
+import serum.model.ThreadMessage;
 
 import serum.rest.AddThreadMessageRequest;
 import serum.rest.CreateThreadRequest;
@@ -28,6 +29,7 @@ import serum.rest.CreateThreadResponse;
 import serum.rest.AddThreadImageResponse;
 import serum.rest.ThreadResponse;
 import serum.rest.ThreadsResponse;
+import serum.rest.AddThreadMessageResponse;
 
 import serum.validation.ThreadActionValidator;
 
@@ -152,7 +154,7 @@ public class ThreadController extends Controller
                 else
                 {
                     ThreadResponse response =
-                        new ThreadResponse(true, "You don't have permission to see this thread.");
+                        new ThreadResponse(false, "You don't have permission to see this thread.");
                     return badRequest(toJson(response));
                 }
             }
@@ -289,27 +291,28 @@ public class ThreadController extends Controller
                 ThreadModel thread = ThreadDao.getThreadById(ThreadModel.getIdFromHash(request.threadId));
                 if (ThreadActionValidator.hasPermissionToAddMessage(thread, user))
                 {
-                    ThreadMessageDao.createThreadMessage(thread, user, request.message);
-                    return ok(toJson(new Response(true, null)));
+                    ThreadUser threadUser = thread.getThreadUserFromUser(user);
+                    ThreadMessage m = ThreadMessageDao.createThreadMessage(threadUser, request.message);
+                    return ok(toJson(new AddThreadMessageResponse(true, null, m.getIdHash())));
                 }
                 else
                 {
-                    Response response =
-                        new Response(true, "You don't have permission to add messages to this thread.");
+                    String errorMessage = "You don't have permission to add messages to this thread.";
+                    AddThreadMessageResponse response = new AddThreadMessageResponse(false, errorMessage);
                     return badRequest(toJson(response));
                 }
             }
             else
             {
-                Response response =
-                    new Response(false, "Could not find auth token and/or user. Try logging in again.");
+                String errorMessage = "Could not find auth token and/or user. Try logging in again.";
+                AddThreadMessageResponse response = new AddThreadMessageResponse(false, errorMessage);
                 return badRequest(toJson(response));
             }
         }
         catch (Exception e)
         {
             Logger.error("Error adding thread message", e);
-            Response response = new Response(false, "Unexpected error");
+            AddThreadMessageResponse response = new AddThreadMessageResponse(false, "Unexpected error");
             return internalServerError(toJson(response));
         }
     }

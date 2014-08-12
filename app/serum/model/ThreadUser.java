@@ -49,6 +49,9 @@ public class ThreadUser
     @Temporal(TemporalType.TIMESTAMP)
     public Calendar deletedUTC;
 
+    @OneToMany(mappedBy="threadUser")
+    public List<ThreadMessage> threadMessages;
+
     public ThreadUser()
     {
     }

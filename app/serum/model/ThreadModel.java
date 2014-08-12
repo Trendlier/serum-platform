@@ -133,4 +133,23 @@ public class ThreadModel
             return false;
         }
     }
+
+    public List<ThreadMessage> getThreadMessages()
+    {
+        List<ThreadMessage> threadMessageList = new ArrayList<ThreadMessage>();
+        for (ThreadUser threadUser: threadUsers)
+        {
+            if (!threadUser.isDeleted)
+            {
+                for (ThreadMessage threadMessage: threadUser.threadMessages)
+                {
+                    if (!threadMessage.isDeleted)
+                    {
+                        threadMessageList.add(threadMessage);
+                    }
+                }
+            }
+        }
+        return threadMessageList;
+    }
 }

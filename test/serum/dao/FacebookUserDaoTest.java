@@ -117,6 +117,8 @@ public class FacebookUserDaoTest extends DaoTest
         // Now create their friends.
         FacebookUserDao.createUpdateFacebookUserFriends(facebookUser, mockUserFb);
         // Friend should have been created.
+        // XXX: this should not be here. It is probably only needed for unit tests since the assertion on
+        // updated list of friends takes place within the same transaction as the creation of said friends.
         JPA.em().flush();
         JPA.em().refresh(facebookUser);
         List<FacebookUser> friendFacebookUsers = facebookUser.getFriendFacebookUsers();

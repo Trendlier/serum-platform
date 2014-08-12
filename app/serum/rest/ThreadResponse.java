@@ -12,7 +12,7 @@ public class ThreadResponse extends Response
     public String imageUrl;
     public Integer imageWidth;
     public Integer imageHeight;
-    public List<Response> responses;
+    public List<ThreadMessage> messages;
 
     public static class User
     {
@@ -21,8 +21,9 @@ public class ThreadResponse extends Response
         public String pictureUrl;
     }
 
-    public static class Response
+    public static class ThreadMessage
     {
+        public String threadMessageId;
         public ThreadUser threadUser;
         public String text;
         public Long createdTimestamp;
