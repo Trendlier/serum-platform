@@ -138,7 +138,7 @@ CREATE UNIQUE INDEX ON thread_user(thread_id, colour_red, colour_green, colour_b
 WHERE NOT is_deleted;
 CREATE UNIQUE INDEX ON thread_user(thread_id, user_id) WHERE NOT is_deleted;
 
-CREATE TABLE thread_response(
+CREATE TABLE thread_message(
     id SERIAL PRIMARY KEY,
     thread_user_id INTEGER REFERENCES thread_user(id) NOT NULL,
     "text" TEXT NOT NULL,
@@ -149,8 +149,8 @@ CREATE TABLE thread_response(
     deleted_utc TIMESTAMP WITHOUT TIME ZONE
 );
 
-CREATE TABLE thread_user_last_seen_response(
+CREATE TABLE thread_user_last_seen_message(
     thread_user_id INTEGER REFERENCES thread_user(id) NOT NULL,
-    thread_response_id INTEGER REFERENCES thread_response(id) NOT NULL,
+    thread_message_id INTEGER REFERENCES thread_message(id) NOT NULL,
     seen_utc TIMESTAMP WITHOUT TIME ZONE NOT NULL
 );

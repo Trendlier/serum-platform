@@ -36,7 +36,7 @@ public class UserController extends Controller
             if (user != null)
             {
                 UserResponse userResponse = new UserResponse(true, null);
-                userResponse.id = user.getIdHash();
+                userResponse.userId = user.getIdHash();
                 userResponse.threadCapacity = user.threadCapacity;
                 userResponse.name = user.facebookUser.name;
                 userResponse.gender = user.facebookUser.gender;
@@ -76,7 +76,7 @@ public class UserController extends Controller
                 for (User userOfFriend: user.getFriends())
                 {
                     UserFriendsResponse.Friend responseFriend = new UserFriendsResponse.Friend();
-                    responseFriend.id = userOfFriend.getIdHash();
+                    responseFriend.userId = userOfFriend.getIdHash();
                     responseFriend.name = userOfFriend.facebookUser.name;
                     responseFriend.gender = userOfFriend.facebookUser.gender;
                     responseFriend.pictureUrl = userOfFriend.facebookUser.pictureUrl;

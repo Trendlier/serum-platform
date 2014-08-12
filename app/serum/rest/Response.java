@@ -3,11 +3,11 @@ package serum.rest;
 public class Response
 {
     public Boolean success;
-    public String message;
+    public String errorMessage;
 
-    public Response(Boolean success, String message)
+    public Response(Boolean success, String errorMessage)
     {
         this.success = success;
-        this.message = message;
+        this.errorMessage = errorMessage;
     }
 }

@@ -21,7 +21,17 @@ public class ThreadActionValidator
         return false;
     }
 
+    public static boolean hasPermissionToAddImage(ThreadModel thread, User user)
+    {
+        return isOwner(thread, user);
+    }
+
     public static boolean hasPermissionToRemove(ThreadModel thread, User user)
+    {
+        return isOwner(thread, user);
+    }
+
+    public static boolean isOwner(ThreadModel thread, User user)
     {
         if (user.id == thread.getUserOwner().id)
         {

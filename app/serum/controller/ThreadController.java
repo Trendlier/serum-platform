@@ -19,6 +19,7 @@ import serum.model.User;
 import serum.model.ThreadModel;
 import serum.model.ThreadUser;
 
+import serum.rest.AddThreadMessageRequest;
 import serum.rest.CreateThreadRequest;
 
 import serum.rest.Response;
@@ -81,6 +82,19 @@ public class ThreadController extends Controller
             User user = UserDao.getUserByAuthToken(userAuthToken);
             if (user != null)
             {
+                ThreadModel thread = ThreadDao.getThreadById(ThreadModel.getIdFromHash(threadIdHash));
+                if (ThreadActionValidator.hasPermissionToAddImage(thread, user))
+                {
+                    byte[] imageBytes = request().body().asRaw().asBytes();
+                }
+                else
+                {
+                    AddThreadImageResponse response =
+                        new AddThreadImageResponse(
+                            false,
+                            "You do not have permission to add an image to this thread.");
+                    return badRequest(toJson(response));
+                }
                 return ok("TODO");
             }
             else
@@ -119,13 +133,13 @@ public class ThreadController extends Controller
                     User userOwner = thread.getUserOwner();
                     List<User> invitedUsers = thread.getInvitedUsers();
                     ThreadResponse response = new ThreadResponse(true, null);
-                    response.id = thread.getIdHash();
+                    response.threadId = thread.getIdHash();
                     response.numberOfInvitedUsers = invitedUsers.size();
                     response.title = thread.title;
                     response.imageUrl = thread.imageUrl;
                     response.createdTimestamp = thread.createdUTC.getTimeInMillis()/1000;
                     response.userOwner = new ThreadResponse.User();
-                    response.userOwner.id = userOwner.getIdHash();
+                    response.userOwner.userId = userOwner.getIdHash();
                     if (userOwner.facebookUser != null)
                     {
                         response.userOwner.name = userOwner.facebookUser.name;
@@ -228,7 +242,7 @@ public class ThreadController extends Controller
 
     /**
      * Content-Type: application/json
-     * INPUT: thread ID hash, user ID hash, user auth token
+     * INPUT: thread ID hash, thread user ID hash, user auth token
      * OUTPUT: 
      */
     @Transactional
@@ -250,7 +264,39 @@ public class ThreadController extends Controller
         }
         catch (Exception e)
         {
-            Logger.error("Error removing thread", e);
+            Logger.error("Error removing thread user", e);
+            Response response = new Response(false, "Unexpected error");
+            return internalServerError(toJson(response));
+        }
+    }
+
+    /**
+     * Content-Type: application/json
+     * INPUT:
+     * OUTPUT:
+     */
+    @Transactional
+    public static Result addThreadMessage()
+    {
+        try
+        {
+            JsonNode json = request().body().asJson();
+            AddThreadMessageRequest request = fromJson(json, AddThreadMessageRequest.class);
+            User user = UserDao.getUserByAuthToken(request.userAuthToken);
+            if (user != null)
+            {
+                return ok(toJson(new Response(true, null)));
+            }
+            else
+            {
+                Response response =
+                    new Response(false, "Could not find auth token and/or user. Try logging in again.");
+                return badRequest(toJson(response));
+            }
+        }
+        catch (Exception e)
+        {
+            Logger.error("Error adding thread message", e);
             Response response = new Response(false, "Unexpected error");
             return internalServerError(toJson(response));
         }

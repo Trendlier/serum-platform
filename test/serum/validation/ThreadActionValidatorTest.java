@@ -36,7 +36,7 @@ public class ThreadActionValidatorTest
     }
 
     @Test
-    public void testHasPermissionToRemove()
+    public void testIsOwner()
     {
         ThreadModel thread = new ThreadModel("Test thread");
         thread.threadUsers = new ArrayList<ThreadUser>();
@@ -44,16 +44,16 @@ public class ThreadActionValidatorTest
         userOwner.id = 1L;
         ThreadUser threadUserOwner = new ThreadUser(thread, userOwner, true);
         thread.threadUsers.add(threadUserOwner);
-        assertTrue(ThreadActionValidator.hasPermissionToRemove(thread, userOwner));
+        assertTrue(ThreadActionValidator.isOwner(thread, userOwner));
 
         User invitedUser = new User();
         invitedUser.id = 2L;
         ThreadUser threadUserInvited = new ThreadUser(thread, invitedUser, false);
         thread.threadUsers.add(threadUserInvited);
-        assertFalse(ThreadActionValidator.hasPermissionToRemove(thread, invitedUser));
+        assertFalse(ThreadActionValidator.isOwner(thread, invitedUser));
 
         User notInvitedUser = new User();
         notInvitedUser.id = 3L;
-        assertFalse(ThreadActionValidator.hasPermissionToRemove(thread, notInvitedUser));
+        assertFalse(ThreadActionValidator.isOwner(thread, notInvitedUser));
     }
 }

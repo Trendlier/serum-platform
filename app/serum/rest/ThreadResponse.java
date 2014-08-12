@@ -4,7 +4,7 @@ import java.util.*;
 
 public class ThreadResponse extends Response
 {
-    public String id;
+    public String threadId;
     public Integer numberOfInvitedUsers;
     public User userOwner;
     public String title;
@@ -16,21 +16,20 @@ public class ThreadResponse extends Response
 
     public static class User
     {
-        public String id;
+        public String userId;
         public String name;
         public String pictureUrl;
     }
 
     public static class Response
     {
-        public String id;
         public ThreadUser threadUser;
         public String text;
         public Long createdTimestamp;
 
         public static class ThreadUser
         {
-            public String id;
+            public String threadUserId;
             public Boolean isOwner;
             public String iconUrl;
             public Integer[] colourRGB;

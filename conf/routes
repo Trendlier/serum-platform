@@ -13,6 +13,7 @@ GET     /thread                     serum.controller.ThreadController.getThread(
 GET     /threads                    serum.controller.ThreadController.getThreads(user_auth_token: String)
 POST    /thread/remove              serum.controller.ThreadController.removeThread(thread: String, user_auth_token: String)
 POST    /thread-user/remove         serum.controller.ThreadController.removeThreadUser(thread: String, thread_user: String, user_auth_token: String)
+POST    /thread-message             serum.controller.ThreadController.addThreadMessage()
 
 # Get-the-app page
 GET     /get-the-app                serum.controller.GetTheAppController.index
