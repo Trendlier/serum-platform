@@ -34,26 +34,4 @@ public class ThreadActionValidatorTest
         notInvitedUser.id = 3L;
         assertFalse(ThreadActionValidator.hasPermissionToSee(thread, notInvitedUser));
     }
-
-    @Test
-    public void testIsOwner()
-    {
-        ThreadModel thread = new ThreadModel("Test thread");
-        thread.threadUsers = new ArrayList<ThreadUser>();
-        User userOwner = new User();
-        userOwner.id = 1L;
-        ThreadUser threadUserOwner = new ThreadUser(thread, userOwner, true);
-        thread.threadUsers.add(threadUserOwner);
-        assertTrue(ThreadActionValidator.isOwner(thread, userOwner));
-
-        User invitedUser = new User();
-        invitedUser.id = 2L;
-        ThreadUser threadUserInvited = new ThreadUser(thread, invitedUser, false);
-        thread.threadUsers.add(threadUserInvited);
-        assertFalse(ThreadActionValidator.isOwner(thread, invitedUser));
-
-        User notInvitedUser = new User();
-        notInvitedUser.id = 3L;
-        assertFalse(ThreadActionValidator.isOwner(thread, notInvitedUser));
-    }
 }

@@ -85,6 +85,18 @@ public class ThreadModel
         return null;
     }
 
+    public boolean isOwner(User user)
+    {
+        if (user.id.equals(getUserOwner().id))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     public List<User> getInvitedUsers()
     {
         List<User> invitedUsers = new ArrayList<User>();
@@ -96,5 +108,29 @@ public class ThreadModel
             }
         }
         return invitedUsers;
+    }
+
+    public ThreadUser getThreadUserFromUser(User user)
+    {
+        for (ThreadUser threadUser: threadUsers)
+        {
+            if (user.id.equals(threadUser.user.id))
+            {
+                return threadUser;
+            }
+        }
+        return null;
+    }
+
+    public boolean isThreadUser(User user)
+    {
+        if (getThreadUserFromUser(user) != null)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 }

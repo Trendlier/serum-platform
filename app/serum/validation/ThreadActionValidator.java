@@ -5,41 +5,23 @@ import serum.model.User;
 
 public class ThreadActionValidator
 {
+    public static boolean hasPermissionToAddMessage(ThreadModel thread, User user)
+    {
+        return thread.isThreadUser(user);
+    }
+
     public static boolean hasPermissionToSee(ThreadModel thread, User user)
     {
-        if (user.id == thread.getUserOwner().id)
-        {
-            return true;
-        }
-        for (User invitedUser: thread.getInvitedUsers())
-        {
-            if (user.id == invitedUser.id)
-            {
-                return true;
-            }
-        }
-        return false;
+        return thread.isThreadUser(user);
     }
 
     public static boolean hasPermissionToAddImage(ThreadModel thread, User user)
     {
-        return isOwner(thread, user);
+        return thread.isOwner(user);
     }
 
     public static boolean hasPermissionToRemove(ThreadModel thread, User user)
     {
-        return isOwner(thread, user);
-    }
-
-    public static boolean isOwner(ThreadModel thread, User user)
-    {
-        if (user.id == thread.getUserOwner().id)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return thread.isOwner(user);
     }
 }

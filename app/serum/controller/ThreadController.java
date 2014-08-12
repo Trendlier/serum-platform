@@ -14,6 +14,7 @@ import play.db.jpa.*;
 import serum.dao.UserDao;
 import serum.dao.ThreadDao;
 import serum.dao.ThreadUserDao;
+import serum.dao.ThreadMessageDao;
 
 import serum.model.User;
 import serum.model.ThreadModel;
@@ -285,7 +286,18 @@ public class ThreadController extends Controller
             User user = UserDao.getUserByAuthToken(request.userAuthToken);
             if (user != null)
             {
-                return ok(toJson(new Response(true, null)));
+                ThreadModel thread = ThreadDao.getThreadById(ThreadModel.getIdFromHash(request.threadId));
+                if (ThreadActionValidator.hasPermissionToAddMessage(thread, user))
+                {
+                    ThreadMessageDao.createThreadMessage(thread, user, request.message);
+                    return ok(toJson(new Response(true, null)));
+                }
+                else
+                {
+                    Response response =
+                        new Response(true, "You don't have permission to add messages to this thread.");
+                    return badRequest(toJson(response));
+                }
             }
             else
             {
