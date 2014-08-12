@@ -19,6 +19,9 @@ public class ThreadModelTest
         thread.threadUsers.add(threadUser);
         assertNotNull(thread.getThreadUserFromUser(user));
 
+        threadUser.isDeleted = true;
+        assertNull(thread.getThreadUserFromUser(user));
+
         User notInvitedUser = new User();
         notInvitedUser.id = 2L;
         assertNull(thread.getThreadUserFromUser(notInvitedUser));
@@ -35,6 +38,9 @@ public class ThreadModelTest
         thread.threadUsers.add(threadUser);
         assertTrue(thread.isThreadUser(user));
 
+        threadUser.isDeleted = true;
+        assertFalse(thread.isThreadUser(user));
+
         User notInvitedUser = new User();
         notInvitedUser.id = 2L;
         assertFalse(thread.isThreadUser(notInvitedUser));
@@ -50,6 +56,9 @@ public class ThreadModelTest
         ThreadUser threadUserOwner = new ThreadUser(thread, userOwner, true);
         thread.threadUsers.add(threadUserOwner);
         assertEquals(userOwner, thread.getUserOwner());
+
+        threadUserOwner.isDeleted = true;
+        assertNull(thread.getUserOwner());
     }
 
     @Test

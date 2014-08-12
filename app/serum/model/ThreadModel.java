@@ -77,7 +77,7 @@ public class ThreadModel
     {
         for (ThreadUser threadUser: threadUsers)
         {
-            if (threadUser.isOwner)
+            if (threadUser.isOwner && !threadUser.isDeleted)
             {
                 return threadUser.user;
             }
@@ -102,7 +102,7 @@ public class ThreadModel
         List<User> invitedUsers = new ArrayList<User>();
         for (ThreadUser threadUser: threadUsers)
         {
-            if (!threadUser.isOwner)
+            if (!threadUser.isOwner && !threadUser.isDeleted)
             {
                 invitedUsers.add(threadUser.user);
             }
@@ -114,7 +114,7 @@ public class ThreadModel
     {
         for (ThreadUser threadUser: threadUsers)
         {
-            if (user.id.equals(threadUser.user.id))
+            if (user.id.equals(threadUser.user.id) && !threadUser.isDeleted)
             {
                 return threadUser;
             }
