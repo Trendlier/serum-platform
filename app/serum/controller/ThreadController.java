@@ -148,7 +148,26 @@ public class ThreadController extends Controller
                         response.userOwner.name = userOwner.facebookUser.name;
                         response.userOwner.pictureUrl = userOwner.facebookUser.pictureUrl;
                     }
-                    // TODO: add responses/messages
+                    response.messages = new ArrayList<ThreadResponse.ThreadMessage>();
+                    for (ThreadMessage threadMessage: thread.getThreadMessages())
+                    {
+                        ThreadResponse.ThreadMessage threadMessageResponse = new ThreadResponse.ThreadMessage();
+                        threadMessageResponse.threadMessageId = threadMessage.getIdHash();
+                        threadMessageResponse.text = threadMessage.text;
+                        threadMessageResponse.createdTimestamp = threadMessage.createdUTC.getTimeInMillis()/1000;
+                        ThreadResponse.ThreadMessage.ThreadUser threadUserResponse =
+                            new ThreadResponse.ThreadMessage.ThreadUser();
+                        threadUserResponse.threadUserId = threadMessage.threadUser.getIdHash();
+                        threadUserResponse.isOwner = threadMessage.threadUser.isOwner;
+                        threadUserResponse.iconUrl = threadMessage.threadUser.iconUrl;
+                        threadUserResponse.colourRGB = new Integer[] {
+                            threadMessage.threadUser.colourRed,
+                            threadMessage.threadUser.colourGreen,
+                            threadMessage.threadUser.colourBlue
+                        };
+                        threadMessageResponse.threadUser = threadUserResponse;
+                        response.messages.add(threadMessageResponse);
+                    }
                     return ok(toJson(response));
                 }
                 else

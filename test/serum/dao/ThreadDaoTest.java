@@ -36,12 +36,12 @@ public class ThreadDaoTest extends DaoTest
     public void testCreateGetRemoveThreadAndThreadUsers()
     throws Throwable
     {
-        final GraphAPI.User mockUserFb = FacebookUserDaoTest.getFreshMockUserFb();
         final String title = "Should entities and rest objects use getters and setters, or just public fields?";
         final Long threadId = JPA.withTransaction(new Function0<Long>() {
             @Override
             public Long apply() throws Throwable
             {
+                GraphAPI.User mockUserFb = FacebookUserDaoTest.getFreshMockUserFb();
                 User userOwner = getMockUser(mockUserFb);
                 List<User> invitedUsers = getMockInvitedUsers(mockUserFb);
                 ThreadModel thread = ThreadDao.createThread(title);
