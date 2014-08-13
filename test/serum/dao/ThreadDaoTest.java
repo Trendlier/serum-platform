@@ -37,13 +37,13 @@ public class ThreadDaoTest extends DaoTest
     throws Throwable
     {
         final GraphAPI.User mockUserFb = FacebookUserDaoTest.getFreshMockUserFb();
+        final String title = "Should entities and rest objects use getters and setters, or just public fields?";
         final Long threadId = JPA.withTransaction(new Function0<Long>() {
             @Override
             public Long apply() throws Throwable
             {
                 User userOwner = getMockUser(mockUserFb);
                 List<User> invitedUsers = getMockInvitedUsers(mockUserFb);
-                String title = "Should entities and rest objects use getters and setters, or just public fields?";
                 ThreadModel thread = ThreadDao.createThread(title);
                 ThreadUserDao.createThreadUsers(thread, userOwner, invitedUsers);
                 return thread.id;
@@ -58,11 +58,14 @@ public class ThreadDaoTest extends DaoTest
 
                 assertNotNull(thread);
                 assertEquals(title, thread.title);
-                assertEquals(userOwner, thread.getUserOwner());
-                assertEquals(invitedUsers.size() + 1, thread.threadUsers.size());
+                assertNotNull(thread.getUserOwner());
+                assertTrue(thread.threadUsers.size() > 1);
 
                 List<User> actualInvitedUsers = thread.getInvitedUsers();
-                assertEquals(invitedUsers, actualInvitedUsers);
+                assertTrue(thread.getInvitedUsers().size() > 0);
+
+                ThreadUserDao.removeThreadUser(thread.threadUsers.get(1));
+                assertEquals(actualInvitedUsers.size() - 1, thread.getInvitedUsers().size());
 
                 ThreadDao.removeThread(thread);
                 assertTrue(thread.isDeleted);
@@ -74,11 +77,11 @@ public class ThreadDaoTest extends DaoTest
     public void testCreateThreadMessageAndGetThreadMessages()
     throws Throwable
     {
-        final GraphAPI.User mockUserFb = FacebookUserDaoTest.getFreshMockUserFb();
         final Long threadId = JPA.withTransaction(new Function0<Long>() {
             @Override
             public Long apply() throws Throwable
             {
+                GraphAPI.User mockUserFb = FacebookUserDaoTest.getFreshMockUserFb();
                 User userOwner = getMockUser(mockUserFb);
                 List<User> invitedUsers = getMockInvitedUsers(mockUserFb);
                 String title = "My test thread. Hello! World?";

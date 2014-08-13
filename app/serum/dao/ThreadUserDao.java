@@ -32,4 +32,9 @@ public class ThreadUserDao
             JPA.em().persist(threadUser);
         }
     }
+
+    public static void removeThreadUser(ThreadUser threadUser)
+    {
+        threadUser.isDeleted = true;
+    }
 }
