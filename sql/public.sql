@@ -149,8 +149,10 @@ CREATE TABLE thread_message(
     deleted_utc TIMESTAMP WITHOUT TIME ZONE
 );
 
-CREATE TABLE thread_user_last_seen_message(
+CREATE TABLE thread_user_message(
     thread_user_id INTEGER REFERENCES thread_user(id) NOT NULL,
     thread_message_id INTEGER REFERENCES thread_message(id) NOT NULL,
-    seen_utc TIMESTAMP WITHOUT TIME ZONE NOT NULL
+    read BOOLEAN NOT NULL,
+    read_utc TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    UNIQUE(thread_user_id, thread_message_id)
 );
