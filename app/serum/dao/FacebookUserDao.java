@@ -99,6 +99,9 @@ public class FacebookUserDao
         }
         if (facebookUser.friends == null)
         {
+            play.Logger.error(
+                "Facebook user friends has not been lazy-loaded. Probably the transaction that " +
+                "loaded it did not close. This should never happen.");
             JPA.em().flush();
             JPA.em().refresh(facebookUser);
         }

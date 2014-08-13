@@ -7,7 +7,7 @@ import org.junit.runners.model.FrameworkMethod;
 import play.db.jpa.*;
 import javax.persistence.*;
 
-public class DaoTestRule implements MethodRule
+public class TransactionRule implements MethodRule
 {
     private EntityManager em;
     protected EntityTransaction txn;

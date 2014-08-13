@@ -10,7 +10,7 @@ public class DaoTest
     private static FakeApplication app;
 
     @Rule
-    public final DaoTestRule daoTestRule = new DaoTestRule();
+    public final TransactionRule txnRule = new TransactionRule();
 
     @BeforeClass
     public static void setUpApp()

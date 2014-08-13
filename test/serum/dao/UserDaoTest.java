@@ -23,8 +23,9 @@ public class UserDaoTest extends DaoTest
         // Create in DB
         FacebookUser facebookUser = FacebookUserDao.createUpdateFacebookUser(mockUserFb);
         User user = UserDao.createUpdateUserFromFacebookInfo(facebookUser);
-        JPA.em().flush();
-        JPA.em().refresh(user);
+        txnRule.getTransaction().commit();
+        txnRule.getTransaction().begin();
+        user = UserDao.getUserByAuthToken(user.userAuthToken.token);
         assertNotNull(user);
         // FacebookUser should be populated
         assertNotNull(user.facebookUser);
@@ -39,25 +40,6 @@ public class UserDaoTest extends DaoTest
 
         // Test the get token method returns the same token
         assertNotNull(UserDao.getUserAuthTokenByToken(user.userAuthToken.token));
-    }
-
-    @Test
-    public void testGetUserByAuthToken()
-    throws Exception
-    {
-        GraphAPI.User mockUserFb = FacebookUserDaoTest.getFreshMockUserFb();
-        // Create in DB
-        FacebookUser facebookUser = FacebookUserDao.createUpdateFacebookUser(mockUserFb);
-        User user = UserDao.createUpdateUserFromFacebookInfo(facebookUser);
-        assertNotNull(user);
-        assertNotNull(user.userAuthToken);
-        assertNotNull(user.facebookUser);
-        // Look up user info by the auth token
-        User user2 = UserDao.getUserByAuthToken(user.userAuthToken.token);
-        assertNotNull(user2);
-        assertEquals(user.id, user2.id);
-        assertEquals(user.userAuthToken.token, user2.userAuthToken.token);
-        assertEquals(user.facebookUser, user2.facebookUser);
     }
 
     @Test
@@ -76,8 +58,9 @@ public class UserDaoTest extends DaoTest
         FacebookUserDao.createUpdateFacebookUserFriends(user.facebookUser, mockUserFb);
 
         // Get the friends
-        JPA.em().flush();
-        JPA.em().refresh(user);
+        txnRule.getTransaction().commit();
+        txnRule.getTransaction().begin();
+        user = UserDao.getUserByAuthToken(user.userAuthToken.token);
         List<User> friends = user.getFriends();
         assertNotNull(friends);
         assertTrue(friends.size() > 0);

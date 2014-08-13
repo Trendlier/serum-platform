@@ -119,8 +119,9 @@ public class FacebookUserDaoTest extends DaoTest
         // Friend should have been created.
         // XXX: this should not be here. It is probably only needed for unit tests since the assertion on
         // updated list of friends takes place within the same transaction as the creation of said friends.
-        JPA.em().flush();
-        JPA.em().refresh(facebookUser);
+        txnRule.getTransaction().commit();
+        txnRule.getTransaction().begin();
+        facebookUser = JPA.em().find(FacebookUser.class, facebookUser.id);
         List<FacebookUser> friendFacebookUsers = facebookUser.getFriendFacebookUsers();
         assertEquals(1, friendFacebookUsers.size());
         // Assert that the data we expect about facebook friends are stored
@@ -142,8 +143,9 @@ public class FacebookUserDaoTest extends DaoTest
         Set<String> expectedFriendIds = new HashSet<String>();
         expectedFriendIds.add(mockUserFb.getFriends().get(0).getId());
         expectedFriendIds.add(mockUserFb.getFriends().get(1).getId());
-        JPA.em().flush();
-        JPA.em().refresh(facebookUser);
+        txnRule.getTransaction().commit();
+        txnRule.getTransaction().begin();
+        facebookUser = JPA.em().find(FacebookUser.class, facebookUser.id);
         friendFacebookUsers = facebookUser.getFriendFacebookUsers();
         assertEquals(2, friendFacebookUsers.size());
         assertTrue(expectedFriendIds.contains(friendFacebookUsers.get(0).idFacebook));
@@ -154,8 +156,9 @@ public class FacebookUserDaoTest extends DaoTest
         // Now run the method again.
         FacebookUserDao.createUpdateFacebookUserFriends(facebookUser, mockUserFb);
         // Friend should have been removed. Existing one should remain.
-        JPA.em().flush();
-        JPA.em().refresh(facebookUser);
+        txnRule.getTransaction().commit();
+        txnRule.getTransaction().begin();
+        facebookUser = JPA.em().find(FacebookUser.class, facebookUser.id);
         friendFacebookUsers = facebookUser.getFriendFacebookUsers();
         assertEquals(1, friendFacebookUsers.size());
         assertEquals(mockUserFb.getFriends().get(0).getId(), friendFacebookUsers.get(0).idFacebook);
