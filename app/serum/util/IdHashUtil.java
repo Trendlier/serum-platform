@@ -21,7 +21,7 @@ public class IdHashUtil
         c.init(Cipher.ENCRYPT_MODE, key);
         byte[] decryptedBytes = Long.toString(id).getBytes();
         byte[] encryptedBytes = c.doFinal(decryptedBytes);
-        return DatatypeConverter.printBase64Binary(encryptedBytes);
+        return DatatypeConverter.printHexBinary(encryptedBytes).toLowerCase();
     }
 
     public static Long decrypt(String idHash)
@@ -30,7 +30,7 @@ public class IdHashUtil
         Key key = new SecretKeySpec(keyBytes, ALGO);
         Cipher c = Cipher.getInstance(ALGO);
         c.init(Cipher.DECRYPT_MODE, key);
-        byte[] encryptedBytes = DatatypeConverter.parseBase64Binary(idHash);
+        byte[] encryptedBytes = DatatypeConverter.parseHexBinary(idHash);
         byte[] decryptedBytes = c.doFinal(encryptedBytes);
         return Long.parseLong(new String(decryptedBytes));
     }

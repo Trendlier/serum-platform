@@ -10,7 +10,6 @@ import play.test.*;
 import static play.libs.F.*;
 import play.db.jpa.*;
 
-import serum.rest.CreateThreadRequest;
 import serum.model.*;
 
 import serum.facebook.GraphAPI;
