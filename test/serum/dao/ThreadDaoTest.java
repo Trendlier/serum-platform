@@ -61,8 +61,15 @@ public class ThreadDaoTest extends DaoTest
                 assertTrue(thread.threadUsers.size() > 1);
 
                 List<User> actualInvitedUsers = thread.getInvitedUsers();
-                assertTrue(thread.getInvitedUsers().size() > 0);
+                assertTrue(actualInvitedUsers.size() > 0);
 
+                // Assert that both users have threads in thread list
+                List<ThreadModel> threads0 = thread.getUserOwner().getOpenThreads();
+                assertEquals(1, threads0.size());
+                List<ThreadModel> threads1 = actualInvitedUsers.get(0).getOpenThreads();
+                assertEquals(1, threads1.size());
+
+                // Test removal
                 ThreadUserDao.removeThreadUser(thread.threadUsers.get(1));
                 assertEquals(actualInvitedUsers.size() - 1, thread.getInvitedUsers().size());
 

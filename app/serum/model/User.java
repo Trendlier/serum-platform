@@ -70,6 +70,19 @@ public class User
         return friends;
     }
 
+    public List<ThreadModel> getOpenThreads()
+    {
+        List<ThreadModel> threads = new ArrayList<ThreadModel>();
+        for (ThreadUser threadUser: threadUsers)
+        {
+            if (!threadUser.isDeleted && !threadUser.thread.isDeleted)
+            {
+                threads.add(threadUser.thread);
+            }
+        }
+        return threads;
+    }
+
     /**
      * @param id hash
      * @return id

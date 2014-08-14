@@ -205,7 +205,49 @@ public class ThreadController extends Controller
             User user = UserDao.getUserByAuthToken(userAuthToken);
             if (user != null)
             {
-                return ok("TODO");
+                ThreadsResponse response = new ThreadsResponse(true, null);
+                response.threads = new ArrayList<ThreadsResponse.ThreadResponse>();
+                for (ThreadModel thread: user.getOpenThreads())
+                {
+                    User userOwner = thread.getUserOwner();
+                    List<User> invitedUsers = thread.getInvitedUsers();
+                    ThreadsResponse.ThreadResponse threadResponse = new ThreadsResponse.ThreadResponse();
+                    threadResponse.threadId = thread.getIdHash();
+                    threadResponse.numberOfInvitedUsers = invitedUsers.size();
+                    threadResponse.title = thread.title;
+                    threadResponse.imageUrl = thread.imageUrl;
+                    threadResponse.createdTimestamp = thread.createdUTC.getTimeInMillis()/1000;
+                    threadResponse.userOwner = new ThreadsResponse.ThreadResponse.User();
+                    threadResponse.userOwner.userId = userOwner.getIdHash();
+                    if (userOwner.facebookUser != null)
+                    {
+                        threadResponse.userOwner.name = userOwner.facebookUser.name;
+                        threadResponse.userOwner.pictureUrl = userOwner.facebookUser.pictureUrl;
+                    }
+                    threadResponse.messages = new ArrayList<ThreadsResponse.ThreadResponse.ThreadMessage>();
+                    for (ThreadMessage threadMessage: thread.getThreadMessages())
+                    {
+                        ThreadsResponse.ThreadResponse.ThreadMessage threadMessageResponse =
+                            new ThreadsResponse.ThreadResponse.ThreadMessage();
+                        threadMessageResponse.threadMessageId = threadMessage.getIdHash();
+                        threadMessageResponse.text = threadMessage.text;
+                        threadMessageResponse.createdTimestamp = threadMessage.createdUTC.getTimeInMillis()/1000;
+                        ThreadsResponse.ThreadResponse.ThreadMessage.ThreadUser threadUserResponse =
+                            new ThreadsResponse.ThreadResponse.ThreadMessage.ThreadUser();
+                        threadUserResponse.threadUserId = threadMessage.threadUser.getIdHash();
+                        threadUserResponse.isOwner = threadMessage.threadUser.isOwner;
+                        threadUserResponse.iconUrl = threadMessage.threadUser.iconUrl;
+                        threadUserResponse.colourRGB = new Integer[] {
+                            threadMessage.threadUser.colourRed,
+                            threadMessage.threadUser.colourGreen,
+                            threadMessage.threadUser.colourBlue
+                        };
+                        threadMessageResponse.threadUser = threadUserResponse;
+                        threadResponse.messages.add(threadMessageResponse);
+                    }
+                    response.threads.add(threadResponse);
+                }
+                return ok(toJson(response));
             }
             else
             {
