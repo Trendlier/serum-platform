@@ -12,6 +12,8 @@ public class ThreadsResponse extends Response
         public Integer numberOfInvitedUsers;
         public User userOwner;
         public String title;
+        public Integer unreadMessages;
+        public Long lastEditTimestamp;
         public Long createdTimestamp;
         public String imageUrl;
         public Integer imageWidth;
@@ -30,6 +32,7 @@ public class ThreadsResponse extends Response
             public String threadMessageId;
             public ThreadUser threadUser;
             public String text;
+            public Boolean isRead;
             public Long createdTimestamp;
 
             public static class ThreadUser

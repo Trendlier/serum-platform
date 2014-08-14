@@ -149,10 +149,10 @@ CREATE TABLE thread_message(
     deleted_utc TIMESTAMP WITHOUT TIME ZONE
 );
 
-CREATE TABLE thread_user_message(
+CREATE TABLE thread_user_message_read(
+    id SERIAL PRIMARY KEY,
     thread_user_id INTEGER REFERENCES thread_user(id) NOT NULL,
     thread_message_id INTEGER REFERENCES thread_message(id) NOT NULL,
-    read BOOLEAN NOT NULL,
-    read_utc TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    created_utc TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     UNIQUE(thread_user_id, thread_message_id)
 );

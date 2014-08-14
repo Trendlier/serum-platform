@@ -12,8 +12,9 @@ POST    /thread-image               serum.controller.ThreadController.addThreadI
 GET     /thread                     serum.controller.ThreadController.getThread(thread: String, user_auth_token: String)
 GET     /threads                    serum.controller.ThreadController.getThreads(user_auth_token: String)
 POST    /thread/remove              serum.controller.ThreadController.removeThread(thread: String, user_auth_token: String)
-POST    /thread-user/remove         serum.controller.ThreadController.removeThreadUser(thread: String, thread_user: String, user_auth_token: String)
+POST    /thread-user/remove         serum.controller.ThreadController.removeThreadUser(thread_user: String, user_auth_token: String)
 POST    /thread-message             serum.controller.ThreadController.addThreadMessage()
+POST    /thread-message/mark-as-read serum.controller.ThreadController.markThreadMessageAsRead(thread_message: String, user_auth_token: String)
 
 # Get-the-app page
 GET     /get-the-app                serum.controller.GetTheAppController.index

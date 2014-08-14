@@ -20,4 +20,36 @@ public class ThreadMessageDao
     {
         threadMessage.isDeleted = true;
     }
+
+    public static ThreadMessage getThreadMessageById(Long id)
+    {
+        return JPA.em().find(ThreadMessage.class, id);
+    }
+
+    public static void markThreadMessageAsRead(ThreadUser threadUser, ThreadMessage threadMessage)
+    {
+        ThreadUserMessageRead r = new ThreadUserMessageRead(threadUser, threadMessage);
+        JPA.em().persist(r);
+    }
+
+    public static List<ThreadMessage> getUnreadMessages(ThreadUser threadUser)
+    {
+        Collection<ThreadMessage> threadMessages = threadUser.thread.getThreadMessages();
+        if (threadMessages.isEmpty())
+        {
+            return new ArrayList<ThreadMessage>();
+        }
+        return JPA.em().createQuery(
+                "select m from ThreadMessage m " +
+                "where not exists ( " +
+                  "select r from ThreadUserMessageRead r " +
+                  "where r.threadUser = :threadUser " +
+                  "and r.threadMessage = m " +
+                ") " +
+                "and m in :threadMessages ",
+                ThreadMessage.class)
+            .setParameter("threadUser", threadUser)
+            .setParameter("threadMessages", threadMessages)
+            .getResultList();
+    }
 }

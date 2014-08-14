@@ -107,6 +107,8 @@ public class ThreadDaoTest extends DaoTest
 
                 ThreadUser threadUserOwner = thread.threadUsers.get(0);
                 assertNotNull(threadUserOwner);
+                assertTrue(ThreadMessageDao.getUnreadMessages(threadUserOwner).isEmpty());
+
                 ThreadMessage threadMessage = ThreadMessageDao.createThreadMessage(threadUserOwner, "A B C");
                 return threadMessage.id;
             }
@@ -118,8 +120,16 @@ public class ThreadDaoTest extends DaoTest
             {
                 ThreadModel thread = ThreadDao.getThreadById(threadId);
                 assertEquals(1, thread.getThreadMessages().size());
-                assertEquals(threadMessageId, thread.getThreadMessages().get(0).id);
+                ThreadMessage threadMessage = thread.getThreadMessages().get(0);
+                ThreadUser threadUser = threadMessage.threadUser;
+                assertEquals(threadMessageId, threadMessage .id);
 
+                // Test marking message as read
+                assertTrue(ThreadMessageDao.getUnreadMessages(threadUser).contains(threadMessage));
+                ThreadMessageDao.markThreadMessageAsRead(threadUser, threadMessage);
+                assertFalse(ThreadMessageDao.getUnreadMessages(threadUser).contains(threadMessage));
+
+                // Create another message
                 ThreadUser threadUserInvited = thread.threadUsers.get(1);
                 assertNotNull(threadUserInvited);
                 ThreadMessageDao.createThreadMessage(threadUserInvited, "D E F");

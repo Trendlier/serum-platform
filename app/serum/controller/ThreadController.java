@@ -133,6 +133,8 @@ public class ThreadController extends Controller
                 ThreadModel thread = ThreadDao.getThreadById(ThreadModel.getIdFromHash(threadIdHash));
                 if (ThreadActionValidator.hasPermissionToSee(thread, user))
                 {
+                    ThreadUser threadUser = thread.getThreadUserFromUser(user);
+                    List<ThreadMessage> unreadMessages = ThreadMessageDao.getUnreadMessages(threadUser);
                     User userOwner = thread.getUserOwner();
                     List<User> invitedUsers = thread.getInvitedUsers();
                     ThreadResponse response = new ThreadResponse(true, null);
@@ -140,6 +142,7 @@ public class ThreadController extends Controller
                     response.numberOfInvitedUsers = invitedUsers.size();
                     response.title = thread.title;
                     response.imageUrl = thread.imageUrl;
+                    response.unreadMessages = unreadMessages.size();
                     response.createdTimestamp = thread.createdUTC.getTimeInMillis()/1000;
                     response.userOwner = new ThreadResponse.User();
                     response.userOwner.userId = userOwner.getIdHash();
@@ -148,13 +151,20 @@ public class ThreadController extends Controller
                         response.userOwner.name = userOwner.facebookUser.name;
                         response.userOwner.pictureUrl = userOwner.facebookUser.pictureUrl;
                     }
+                    Long latestMessageTimestamp = null;
                     response.messages = new ArrayList<ThreadResponse.ThreadMessage>();
                     for (ThreadMessage threadMessage: thread.getThreadMessages())
                     {
                         ThreadResponse.ThreadMessage threadMessageResponse = new ThreadResponse.ThreadMessage();
                         threadMessageResponse.threadMessageId = threadMessage.getIdHash();
                         threadMessageResponse.text = threadMessage.text;
+                        threadMessageResponse.isRead = !unreadMessages.contains(threadMessage);
                         threadMessageResponse.createdTimestamp = threadMessage.createdUTC.getTimeInMillis()/1000;
+                        if (latestMessageTimestamp == null ||
+                            latestMessageTimestamp < threadMessageResponse.createdTimestamp)
+                        {
+                            latestMessageTimestamp = threadMessageResponse.createdTimestamp;
+                        }
                         ThreadResponse.ThreadMessage.ThreadUser threadUserResponse =
                             new ThreadResponse.ThreadMessage.ThreadUser();
                         threadUserResponse.threadUserId = threadMessage.threadUser.getIdHash();
@@ -168,6 +178,7 @@ public class ThreadController extends Controller
                         threadMessageResponse.threadUser = threadUserResponse;
                         response.messages.add(threadMessageResponse);
                     }
+                    response.lastEditTimestamp = latestMessageTimestamp;
                     return ok(toJson(response));
                 }
                 else
@@ -209,6 +220,8 @@ public class ThreadController extends Controller
                 response.threads = new ArrayList<ThreadsResponse.ThreadResponse>();
                 for (ThreadModel thread: user.getOpenThreads())
                 {
+                    ThreadUser threadUser = thread.getThreadUserFromUser(user);
+                    List<ThreadMessage> unreadMessages = ThreadMessageDao.getUnreadMessages(threadUser);
                     User userOwner = thread.getUserOwner();
                     List<User> invitedUsers = thread.getInvitedUsers();
                     ThreadsResponse.ThreadResponse threadResponse = new ThreadsResponse.ThreadResponse();
@@ -216,6 +229,7 @@ public class ThreadController extends Controller
                     threadResponse.numberOfInvitedUsers = invitedUsers.size();
                     threadResponse.title = thread.title;
                     threadResponse.imageUrl = thread.imageUrl;
+                    threadResponse.unreadMessages = unreadMessages.size();
                     threadResponse.createdTimestamp = thread.createdUTC.getTimeInMillis()/1000;
                     threadResponse.userOwner = new ThreadsResponse.ThreadResponse.User();
                     threadResponse.userOwner.userId = userOwner.getIdHash();
@@ -224,6 +238,7 @@ public class ThreadController extends Controller
                         threadResponse.userOwner.name = userOwner.facebookUser.name;
                         threadResponse.userOwner.pictureUrl = userOwner.facebookUser.pictureUrl;
                     }
+                    Long latestMessageTimestamp = null;
                     threadResponse.messages = new ArrayList<ThreadsResponse.ThreadResponse.ThreadMessage>();
                     for (ThreadMessage threadMessage: thread.getThreadMessages())
                     {
@@ -231,7 +246,13 @@ public class ThreadController extends Controller
                             new ThreadsResponse.ThreadResponse.ThreadMessage();
                         threadMessageResponse.threadMessageId = threadMessage.getIdHash();
                         threadMessageResponse.text = threadMessage.text;
+                        threadMessageResponse.isRead = !unreadMessages.contains(threadMessage);
                         threadMessageResponse.createdTimestamp = threadMessage.createdUTC.getTimeInMillis()/1000;
+                        if (latestMessageTimestamp == null ||
+                            latestMessageTimestamp < threadMessageResponse.createdTimestamp)
+                        {
+                            latestMessageTimestamp = threadMessageResponse.createdTimestamp;
+                        }
                         ThreadsResponse.ThreadResponse.ThreadMessage.ThreadUser threadUserResponse =
                             new ThreadsResponse.ThreadResponse.ThreadMessage.ThreadUser();
                         threadUserResponse.threadUserId = threadMessage.threadUser.getIdHash();
@@ -245,6 +266,7 @@ public class ThreadController extends Controller
                         threadMessageResponse.threadUser = threadUserResponse;
                         threadResponse.messages.add(threadMessageResponse);
                     }
+                    threadResponse.lastEditTimestamp = latestMessageTimestamp;
                     response.threads.add(threadResponse);
                 }
                 return ok(toJson(response));
@@ -310,7 +332,7 @@ public class ThreadController extends Controller
      * OUTPUT: 
      */
     @Transactional
-    public static Result removeThreadUser(String threadIdHash, String threadUserIdHash, String userAuthToken)
+    public static Result removeThreadUser(String threadUserIdHash, String userAuthToken)
     {
         try
         {
@@ -340,6 +362,7 @@ public class ThreadController extends Controller
      * OUTPUT:
      */
     @Transactional
+    @BodyParser.Of(BodyParser.Json.class)
     public static Result addThreadMessage()
     {
         try
@@ -374,6 +397,40 @@ public class ThreadController extends Controller
         {
             Logger.error("Error adding thread message", e);
             AddThreadMessageResponse response = new AddThreadMessageResponse(false, "Unexpected error");
+            return internalServerError(toJson(response));
+        }
+    }
+
+    /**
+     * Content-Type: application/json
+     * INPUT:
+     * OUTPUT:
+     */
+    @Transactional
+    public static Result markThreadMessageAsRead(String threadMessageIdHash, String userAuthToken)
+    {
+        try
+        {
+            User user = UserDao.getUserByAuthToken(userAuthToken);
+            if (user != null)
+            {
+                ThreadMessage threadMessage =
+                    ThreadMessageDao.getThreadMessageById(ThreadMessage.getIdFromHash(threadMessageIdHash));
+                ThreadUser threadUser = threadMessage.threadUser.thread.getThreadUserFromUser(user);
+                ThreadMessageDao.markThreadMessageAsRead(threadUser, threadMessage);
+                return ok(toJson(new Response(true, null)));
+            }
+            else
+            {
+                String errorMessage = "Could not find auth token and/or user. Try logging in again.";
+                Response response = new Response(false, errorMessage);
+                return badRequest(toJson(response));
+            }
+        }
+        catch (Exception e)
+        {
+            Logger.error("Error adding thread message", e);
+            Response response = new Response(false, "Unexpected error");
             return internalServerError(toJson(response));
         }
     }

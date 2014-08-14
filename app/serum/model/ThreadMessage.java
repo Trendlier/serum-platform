@@ -36,6 +36,9 @@ public class ThreadMessage
     @Temporal(TemporalType.TIMESTAMP)
     public Calendar deletedUTC;
 
+    @OneToMany(mappedBy="threadMessage")
+    public List<ThreadUserMessageRead> threadUserMessagesRead;
+
     public ThreadMessage()
     {
     }
@@ -46,6 +49,11 @@ public class ThreadMessage
         this.text = text;
         this.createdUTC = Calendar.getInstance(TimeZone.getTimeZone("Etc/UTC"));
         this.isDeleted = false;
+    }
+
+    public boolean isOwner(User user)
+    {
+        return threadUser.user.id.equals(user.id);
     }
 
     /**

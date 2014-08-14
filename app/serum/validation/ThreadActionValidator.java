@@ -1,6 +1,7 @@
 package serum.validation;
 
 import serum.model.ThreadModel;
+import serum.model.ThreadMessage;
 import serum.model.User;
 
 public class ThreadActionValidator
