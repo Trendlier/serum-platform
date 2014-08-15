@@ -46,11 +46,13 @@ public class ThreadDaoTest extends DaoTest
             ThreadUser threadUser2 = new ThreadUser(thread, user2, false);
             ThreadUserDao.generateRandomUniqueIcon(threadUser2, icons);
             assertNotNull(threadUser2.iconUrl);
+            assertFalse("".equals(threadUser2.iconUrl));
         }
         User user2 = new User();
         ThreadUser threadUser2 = new ThreadUser(thread, user2, false);
         ThreadUserDao.generateRandomUniqueIcon(threadUser2, icons);
-        assertNull(threadUser2.iconUrl);
+        assertNotNull(threadUser2.iconUrl);
+        assertEquals("", threadUser2.iconUrl);
     }
 
     @Test
