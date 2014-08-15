@@ -22,11 +22,11 @@ public class ThreadUserDao
     {
         if (icons.isEmpty())
         {
-            threadUser.iconUrl = null;
+            threadUser.iconUrl = "";
         }
         else if (threadUser.isOwner)
         {
-            threadUser.iconUrl = null;
+            threadUser.iconUrl = "";
         }
         else
         {
