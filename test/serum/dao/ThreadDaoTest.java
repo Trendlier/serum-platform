@@ -32,6 +32,28 @@ public class ThreadDaoTest extends DaoTest
     }
 
     @Test
+    public void testGenerateRandomUniqueIcon()
+    {
+        List<String> icons = ThreadUserDao.getIcons();
+        User user1 = new User();
+        ThreadModel thread = new ThreadModel("Hello, world");
+        ThreadUser threadUser1 = new ThreadUser(thread, user1, true);
+        ThreadUserDao.generateRandomUniqueIcon(threadUser1, icons);
+        // Exhaust the total number of icons, then we should get an exception.
+        for (int i = 1; i <= ThreadUserDao.icons.length; i++)
+        {
+            User user2 = new User();
+            ThreadUser threadUser2 = new ThreadUser(thread, user2, false);
+            ThreadUserDao.generateRandomUniqueIcon(threadUser2, icons);
+            assertNotNull(threadUser2.iconUrl);
+        }
+        User user2 = new User();
+        ThreadUser threadUser2 = new ThreadUser(thread, user2, false);
+        ThreadUserDao.generateRandomUniqueIcon(threadUser2, icons);
+        assertNull(threadUser2.iconUrl);
+    }
+
+    @Test
     public void testCreateGetRemoveThreadAndThreadUsers()
     throws Throwable
     {
@@ -59,6 +81,12 @@ public class ThreadDaoTest extends DaoTest
                 assertEquals(title, thread.title);
                 assertNotNull(thread.getUserOwner());
                 assertTrue(thread.threadUsers.size() > 1);
+
+                ThreadUser threadUser1 = thread.threadUsers.get(0);
+                ThreadUser threadUser2 = thread.threadUsers.get(1);
+                assertNotNull(threadUser1.iconUrl);
+                assertNotNull(threadUser2.iconUrl);
+                assertFalse(threadUser1.iconUrl.equals(threadUser2.iconUrl));
 
                 List<User> actualInvitedUsers = thread.getInvitedUsers();
                 assertTrue(actualInvitedUsers.size() > 0);
